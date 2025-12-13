@@ -93,7 +93,7 @@ export default function Home() {
           <div className="text-center mb-12">
             <div className="inline-flex items-center gap-2 px-5 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-medium tracking-wide">
               <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-              ANÁLISIS DIARIO · ACTUALIZADO 7:00 AM
+              ANÁLISIS DIARIO · 8:30 AM Y 4:30 PM
             </div>
           </div>
           
@@ -110,7 +110,7 @@ export default function Home() {
             </p>
 
             <p className="text-base text-gray-600 max-w-2xl mx-auto">
-              Cada mañana, un análisis automatizado de todos los documentos publicados en el Diario Oficial de la Federación, clasificados por relevancia para su práctica profesional.
+              Dos veces al día (8:30 AM y 4:30 PM), un análisis automatizado de todas las ediciones del Diario Oficial de la Federación, clasificado por relevancia para su práctica profesional.
             </p>
           </div>
 
@@ -125,8 +125,8 @@ export default function Home() {
               <div className="text-xs text-gray-600 uppercase tracking-widest">ÁREAS LEGALES</div>
             </div>
             <div className="border-2 border-dashed border-green-400 rounded-none p-6 text-center">
-              <div className="text-4xl font-bold text-gray-900 mb-2">7:00 AM</div>
-              <div className="text-xs text-gray-600 uppercase tracking-widest">ENTREGA DIARIA</div>
+              <div className="text-4xl font-bold text-gray-900 mb-2">2×/DÍA</div>
+              <div className="text-xs text-gray-600 uppercase tracking-widest">MATUTINA Y VESPERTINA</div>
             </div>
             <div className="border-2 border-dashed border-green-400 rounded-none p-6 text-center">
               <div className="text-4xl font-bold text-gray-900 mb-2">2-3</div>

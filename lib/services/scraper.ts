@@ -2,6 +2,22 @@ import * as cheerio from 'cheerio';
 
 const DOF_BASE_URL = "https://www.dof.gob.mx";
 
+/**
+ * Determina qué edición del DOF procesar según la hora actual (CDMX)
+ */
+export function determinarEdicionActual(): 'Matutina' | 'Vespertina' {
+  const ahora = new Date();
+  const hora = ahora.getHours();
+  
+  // Matutina: 8:00 AM - 3:59 PM (hora CDMX)
+  // Vespertina: 4:00 PM - 7:59 AM del día siguiente
+  if (hora >= 8 && hora < 16) {
+    return 'Matutina';
+  } else {
+    return 'Vespertina';
+  }
+}
+
 export interface DocumentoDOFRaw {
   titulo: string;
   tipo_documento: string;

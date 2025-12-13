@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, collections } from '@/lib/firebase';
-import { obtenerDocumentosDOF, obtenerExtracto } from '@/lib/services/scraper';
+import { obtenerDocumentosDOF, obtenerExtracto, determinarEdicionActual } from '@/lib/services/scraper';
 import { clasificarDocumento } from '@/lib/services/clasificador';
 import { enviarEmailAlerta } from '@/lib/services/emailer';
 import { DocumentoDOF } from '@/lib/types';
@@ -15,6 +15,10 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('=== Iniciando job diario ===');
+    
+    // Determinar qué edición procesar
+    const edicionActual = determinarEdicionActual();
+    console.log(`Edición a procesar: ${edicionActual}`);
 
     // PASO 1: Scraping del DOF
     console.log('PASO 1: Scraping DOF...');
@@ -109,10 +113,11 @@ export async function POST(request: NextRequest) {
 
       const codigosAreas = areasQuery.docs.map((doc) => doc.data().area_codigo);
 
-      // Buscar documentos relevantes de hoy
+      // Buscar documentos relevantes de hoy y de la edición actual
       const documentosQuery = await db
         .collection(collections.documentosDof)
         .where('fecha_publicacion', '==', fechaHoy)
+        .where('edicion', '==', edicionActual)
         .where('procesado', '==', true)
         .get();
 
