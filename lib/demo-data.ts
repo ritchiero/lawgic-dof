@@ -166,3 +166,11 @@ export const DEMO_DOCUMENTOS_DOF: DemoDocumentoDOF[] = [
     url_dof: 'https://www.dof.gob.mx/nota_detalle.php?codigo=5000010',
   },
 ];
+
+// Función para obtener documentos demo con IDs y fechas de publicación
+export function getDemoDocumentos() {
+  return DEMO_DOCUMENTOS_DOF.map((doc: any) => ({
+    ...doc,
+    fecha_publicacion: doc.fecha,
+  }));
+}

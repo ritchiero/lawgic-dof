@@ -78,6 +78,7 @@ export default function Home() {
               </div>
             </div>
             <div className="flex gap-8">
+              <a href="/feed" className="text-sm text-gray-600 hover:text-blue-600 transition font-medium">📰 Feed</a>
               <a href="/dashboard" className="text-sm text-gray-600 hover:text-blue-600 transition">Dashboard</a>
               <a href="/admin" className="text-sm text-gray-600 hover:text-blue-600 transition">Admin</a>
             </div>

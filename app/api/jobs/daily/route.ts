@@ -131,18 +131,40 @@ export async function POST(request: NextRequest) {
           return doc.areas_detectadas.some((area: string) => codigosAreas.includes(area));
         });
 
-      if (documentosParaEnviar.length === 0) continue;
+      // Si no hay documentos nuevos hoy, obtener últimos 10 históricos
+      let documentosHistoricos: any[] = [];
+      if (documentosParaEnviar.length === 0) {
+        console.log(`Sin documentos nuevos para ${usuario.email}, obteniendo históricos...`);
+        
+        const historicosQuery = await db
+          .collection(collections.documentosDof)
+          .where('procesado', '==', true)
+          .orderBy('fecha_publicacion', 'desc')
+          .limit(100) // Obtener últimos 100 para filtrar
+          .get();
+        
+        documentosHistoricos = historicosQuery.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .filter((doc: any) => {
+            if (!doc.areas_detectadas || doc.areas_detectadas.length === 0) return false;
+            return doc.areas_detectadas.some((area: string) => codigosAreas.includes(area));
+          })
+          .slice(0, 10); // Tomar solo los 10 más recientes
+      }
 
-      // Enviar email
+      // Enviar email siempre (con documentos nuevos o históricos)
+      const hayDocumentosNuevos = documentosParaEnviar.length > 0;
       console.log(
-        `Enviando email a ${usuario.email} con ${documentosParaEnviar.length} documentos`
+        `Enviando email a ${usuario.email}: ${documentosParaEnviar.length} nuevos, ${documentosHistoricos.length} históricos`
       );
 
       const emailId = await enviarEmailAlerta({
         email: usuario.email,
         nombre: usuario.nombre,
         documentos: documentosParaEnviar as any,
+        documentosHistoricos: documentosHistoricos as any,
         fecha: fechaHoy,
+        hayDocumentosNuevos,
       });
 
       if (emailId) {
