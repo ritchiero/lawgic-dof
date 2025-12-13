@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Newspaper } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { AREAS_35 } from '@/lib/areas';
 
 export default function Home() {
@@ -71,7 +71,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Newspaper className="w-10 h-10 text-blue-600" />
+              <Eye className="w-10 h-10 text-blue-600" />
               <div>
                 <div className="text-xs text-gray-500 uppercase tracking-widest">MONITOREO NORMATIVO</div>
                 <h1 className="text-2xl font-bold text-gray-900">DOF Alertas</h1>
