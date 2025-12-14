@@ -5,6 +5,10 @@ import { DocumentCard, DocumentCardSkeleton } from '@/components/DocumentCard';
 import { AREAS_ARRAY } from '@/lib/areas';
 import { Newspaper, Search, Filter, Bookmark, Mail, X } from 'lucide-react';
 
+// Forzar renderizado dinámico (no SSG)
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface Documento {
   id: string;
   titulo: string;
