@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Newspaper, Mail, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Newspaper, Mail, CheckCircle2, ArrowRight, Search, X } from 'lucide-react';
 import { AREAS_35 } from '@/lib/areas';
 
 export default function OnboardingPage() {
@@ -10,17 +10,11 @@ export default function OnboardingPage() {
   const [email, setEmail] = useState('');
   const [nombre, setNombre] = useState('');
   const [selectedAreas, setSelectedAreas] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Áreas populares para selección rápida
-  const areasPopulares = [
-    'fiscal',
-    'corporativo',
-    'laboral',
-    'civil',
-    'mercantil',
-    'administrativo'
-  ];
+  // Áreas populares (destacadas con badge)
+  const areasPopulares = ['fiscal', 'corporativo', 'laboral', 'civil', 'mercantil', 'administrativo'];
 
   const handleAreaToggle = (areaId: string) => {
     setSelectedAreas(prev =>
@@ -71,9 +65,14 @@ export default function OnboardingPage() {
     }
   };
 
+  // Filtrar áreas por búsqueda
+  const filteredAreas = AREAS_35.filter(area =>
+    area.nombre.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full">
+      <div className="max-w-3xl w-full">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
@@ -132,76 +131,114 @@ export default function OnboardingPage() {
 
             {/* Áreas de práctica */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-3">
-                Áreas de práctica <span className="text-red-500">*</span>
-              </label>
-              <p className="text-sm text-slate-500 mb-3">
-                Selecciona al menos una área para recibir alertas relevantes
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-sm font-medium text-slate-700">
+                  Áreas de práctica <span className="text-red-500">*</span>
+                </label>
+                {selectedAreas.length > 0 && (
+                  <span className="text-sm text-blue-600 font-medium">
+                    {selectedAreas.length} seleccionada{selectedAreas.length !== 1 ? 's' : ''}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-slate-500 mb-4">
+                Selecciona las áreas de tu interés. Haz clic para seleccionar/deseleccionar.
               </p>
 
-              {/* Áreas populares */}
-              <div className="mb-4">
-                <p className="text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wide">
-                  Más populares
-                </p>
+              {/* Búsqueda */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar área..."
+                  className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition text-sm text-slate-900 placeholder:text-slate-400"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Grid de chips */}
+              <div className="max-h-[400px] overflow-y-auto p-4 bg-slate-50 rounded-xl border border-slate-200">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {areasPopulares.map(codigo => {
-                    const area = AREAS_35.find(a => a.codigo === codigo);
-                    if (!area) return null;
+                  {filteredAreas.map(area => {
+                    const isSelected = selectedAreas.includes(area.codigo);
+                    const isPopular = areasPopulares.includes(area.codigo);
+                    
                     return (
                       <button
                         key={area.codigo}
                         type="button"
                         onClick={() => handleAreaToggle(area.codigo)}
-                        className={`flex items-center gap-2 p-3 rounded-lg border-2 transition-all ${
-                          selectedAreas.includes(area.codigo)
-                            ? 'bg-blue-50 border-blue-500 shadow-sm'
-                            : 'bg-white border-slate-200 hover:border-blue-300'
+                        className={`relative flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left ${
+                          isSelected
+                            ? 'bg-blue-600 border-blue-600 shadow-md shadow-blue-500/25 scale-[1.02]'
+                            : 'bg-white border-slate-200 hover:border-blue-300 hover:shadow-sm'
                         }`}
                       >
-                        <span className="text-xl">{area.emoji}</span>
-                        <span className="text-sm font-medium text-slate-700 truncate">
+                        {isPopular && !searchQuery && (
+                          <span className="absolute -top-2 -right-2 px-2 py-0.5 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-full shadow-sm">
+                            Popular
+                          </span>
+                        )}
+                        <span className="text-xl flex-shrink-0">{area.emoji}</span>
+                        <span className={`text-sm font-medium flex-1 ${
+                          isSelected ? 'text-white' : 'text-slate-700'
+                        }`}>
                           {area.nombre}
                         </span>
+                        {isSelected && (
+                          <CheckCircle2 className="w-5 h-5 text-white flex-shrink-0" />
+                        )}
                       </button>
                     );
                   })}
                 </div>
+                
+                {filteredAreas.length === 0 && (
+                  <div className="text-center py-8 text-slate-500">
+                    <p className="text-sm">No se encontraron áreas con "{searchQuery}"</p>
+                  </div>
+                )}
               </div>
 
-              {/* Todas las áreas */}
-              <details className="group">
-                <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-700 font-medium mb-2">
-                  Ver todas las áreas ({AREAS_35.length})
-                </summary>
-                <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 max-h-64 overflow-y-auto p-3 bg-slate-50 rounded-lg border border-slate-200">
-                  {AREAS_35.filter(a => !areasPopulares.includes(a.codigo)).map(area => (
-                    <label
-                      key={area.codigo}
-                      className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all ${
-                        selectedAreas.includes(area.codigo)
-                          ? 'bg-blue-50 border border-blue-200'
-                          : 'bg-white border border-transparent hover:border-blue-200'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedAreas.includes(area.codigo)}
-                        onChange={() => handleAreaToggle(area.codigo)}
-                        className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
-                      />
-                      <span className="text-lg">{area.emoji}</span>
-                      <span className="text-sm text-slate-700 truncate">{area.nombre}</span>
-                    </label>
-                  ))}
-                </div>
-              </details>
-
+              {/* Áreas seleccionadas (resumen) */}
               {selectedAreas.length > 0 && (
-                <p className="mt-3 text-sm text-emerald-600 flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4" />
-                  {selectedAreas.length} área{selectedAreas.length > 1 ? 's' : ''} seleccionada{selectedAreas.length > 1 ? 's' : ''}
-                </p>
+                <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
+                  <p className="text-xs font-semibold text-blue-900 mb-2 uppercase tracking-wide">
+                    Recibirás alertas de:
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedAreas.map(codigo => {
+                      const area = AREAS_35.find(a => a.codigo === codigo);
+                      if (!area) return null;
+                      return (
+                        <span
+                          key={codigo}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-full text-sm font-medium text-slate-700 border border-blue-200"
+                        >
+                          <span>{area.emoji}</span>
+                          <span>{area.nombre}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleAreaToggle(codigo)}
+                            className="ml-1 text-slate-400 hover:text-slate-600"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
               )}
             </div>
 
@@ -209,44 +246,26 @@ export default function OnboardingPage() {
             <button
               type="submit"
               disabled={loading || !email || selectedAreas.length === 0}
-              className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-800 transition shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 group"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-300 disabled:to-slate-400 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 disabled:shadow-none transition-all flex items-center justify-center gap-2 group"
             >
               {loading ? (
-                'Creando cuenta...'
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span>Creando cuenta...</span>
+                </>
               ) : (
                 <>
-                  Comenzar prueba gratis
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition" />
+                  <span>Comenzar prueba gratis</span>
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
 
-            {/* Info */}
-            <div className="pt-4 border-t border-slate-200">
-              <div className="flex items-start gap-3 text-sm text-slate-600">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-slate-900 mb-1">
-                    ¿Qué incluye la prueba gratis?
-                  </p>
-                  <ul className="space-y-1 text-xs">
-                    <li>• Alertas por email 2 veces al día durante 7 días</li>
-                    <li>• Acceso completo al feed web</li>
-                    <li>• Sin tarjeta de crédito requerida</li>
-                    <li>• Cancela cuando quieras</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+            <p className="text-xs text-center text-slate-500">
+              Al continuar, aceptas recibir alertas del DOF en tu correo. Puedes cancelar en cualquier momento.
+            </p>
           </form>
         </div>
-
-        {/* Footer */}
-        <p className="text-center text-sm text-slate-500 mt-6">
-          Al continuar, aceptas recibir emails de DOF Alertas.
-          <br />
-          Puedes cancelar tu suscripción en cualquier momento.
-        </p>
       </div>
     </div>
   );
