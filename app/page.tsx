@@ -306,7 +306,7 @@ export default function Home() {
               {
                 step: '02',
                 title: 'Clasificación con IA',
-                description: 'Claude 3.5 analiza y clasifica cada documento según relevancia para tus áreas de práctica.',
+                description: 'Los modelos más avanzados de la industria analizan y clasifican cada documento según relevancia para tu práctica.',
               },
               {
                 step: '03',
