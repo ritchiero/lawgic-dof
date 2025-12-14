@@ -20,43 +20,8 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!email || selectedAreas.length === 0) {
-      alert('Por favor complete todos los campos requeridos');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch('/api/demo/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          nombre,
-          areas: selectedAreas,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.redirect_url) {
-        localStorage.setItem('demo_user', JSON.stringify({ email, nombre, areas: selectedAreas, session_id: data.session_id }));
-        window.location.href = data.redirect_url;
-      } else if (data.checkout_url) {
-        window.location.href = data.checkout_url;
-      } else {
-        alert('Error al procesar la suscripción');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Error al procesar la suscripción');
-    } finally {
-      setLoading(false);
-    }
+    // Redirigir al onboarding simplificado
+    window.location.href = '/onboarding';
   };
 
   // Agrupar áreas por categoría
