@@ -21,7 +21,6 @@ export async function GET(request: NextRequest) {
 
       // Construir query de Firestore
       let query = db.collection(collections.documentosDof)
-        .where('procesado', '==', true)
         .orderBy('fecha_publicacion', 'desc')
         .limit(100); // Limitar a 100 documentos para evitar costos excesivos
 
