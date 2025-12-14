@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDemoDocumentos } from '@/lib/demo-data';
+import { db, collections } from '@/lib/firebase';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,45 +8,55 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const areasFilter = searchParams.get('areas')?.split(',').filter(Boolean) || [];
     const searchQuery = searchParams.get('q') || '';
-    const savedOnly = searchParams.get('saved') === 'true';
 
-    // En modo demo, usar datos simulados
-    let allDocumentos = getDemoDocumentos();
+    // Construir query de Firestore
+    let query = db.collection(collections.documentosDof)
+      .where('procesado', '==', true)
+      .orderBy('fecha_publicacion', 'desc');
 
     // Filtrar por áreas si se especificaron
     if (areasFilter.length > 0) {
-      allDocumentos = allDocumentos.filter((doc: any) =>
-        doc.areas_detectadas?.some((area: string) => areasFilter.includes(area))
-      );
+      query = query.where('areas_clasificadas', 'array-contains-any', areasFilter.slice(0, 10));
     }
 
-    // Filtrar por búsqueda
+    // Ejecutar query
+    const snapshot = await query.get();
+
+    // Convertir a array de documentos
+    let documentos = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        titulo: data.titulo || '',
+        resumen_ia: data.resumen_ia || '',
+        areas_detectadas: data.areas_clasificadas || [],
+        fecha_publicacion: data.fecha_publicacion || '',
+        tipo_documento: data.tipo_documento || 'Documento',
+        edicion: data.edicion || 'Matutina',
+        url_dof: data.url_dof || '',
+      };
+    });
+
+    // Filtrar por búsqueda (en memoria, ya que Firestore no soporta búsqueda full-text)
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      allDocumentos = allDocumentos.filter((doc: any) =>
+      documentos = documentos.filter(doc =>
         doc.titulo.toLowerCase().includes(query) ||
         doc.resumen_ia?.toLowerCase().includes(query) ||
         doc.tipo_documento?.toLowerCase().includes(query)
       );
     }
 
-    // Ordenar por fecha (más recientes primero)
-    allDocumentos.sort((a: any, b: any) => {
-      const fechaA = new Date(a.fecha_publicacion || '2024-01-01');
-      const fechaB = new Date(b.fecha_publicacion || '2024-01-01');
-      return fechaB.getTime() - fechaA.getTime();
-    });
-
     // Paginación
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
-    const documentosPaginados = allDocumentos.slice(startIndex, endIndex);
-    const hasMore = endIndex < allDocumentos.length;
+    const documentosPaginados = documentos.slice(startIndex, endIndex);
+    const hasMore = endIndex < documentos.length;
 
     return NextResponse.json({
       documentos: documentosPaginados,
       hasMore,
-      total: allDocumentos.length,
+      total: documentos.length,
       page,
       limit,
     });
