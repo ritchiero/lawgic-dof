@@ -159,7 +159,7 @@ export default function Home() {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-red-600 mt-1">❌</span>
-                  <span>Estrés de estar siempre "al pendiente"</span>
+                  <span>Estrés de estar siempre &quot;al pendiente&quot;</span>
                 </li>
               </ul>
             </div>
@@ -204,7 +204,7 @@ export default function Home() {
                 {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
               </div>
               <p className="text-gray-700 mb-4 italic">
-                "Antes perdía 3 horas al día revisando el DOF. Ahora en 5 minutos sé exactamente qué me afecta. Vale cada peso."
+                &quot;Antes perdía 3 horas al día revisando el DOF. Ahora en 5 minutos sé exactamente qué me afecta. Vale cada peso.&quot;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
@@ -222,7 +222,7 @@ export default function Home() {
                 {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
               </div>
               <p className="text-gray-700 mb-4 italic">
-                "Mis clientes están impresionados de lo rápido que les informo sobre cambios. Mi despacho se ve más profesional."
+                &quot;Mis clientes están impresionados de lo rápido que les informo sobre cambios. Mi despacho se ve más profesional.&quot;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
@@ -240,7 +240,7 @@ export default function Home() {
                 {[1,2,3,4,5].map(i => <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />)}
               </div>
               <p className="text-gray-700 mb-4 italic">
-                "Por $29 al mes es una ganga. Antes pagaba a un pasante $500/semana solo para revisar el DOF."
+                &quot;Por $29 al mes es una ganga. Antes pagaba a un pasante $500/semana solo para revisar el DOF.&quot;
               </p>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">

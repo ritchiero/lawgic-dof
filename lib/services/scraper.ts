@@ -154,7 +154,11 @@ function inferirTipoDocumento(texto: string): string {
   return 'Otro';
 }
 
-function inferirEdicion($element: cheerio.Cheerio<any>): string {
+type CheerioContexto = {
+  parent(): { text(): string };
+};
+
+function inferirEdicion($element: CheerioContexto): string {
   const textoContexto = $element.parent().text().toUpperCase();
 
   if (textoContexto.includes('VESPERTINA')) {

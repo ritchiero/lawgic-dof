@@ -7,9 +7,5 @@
 body {
   background: white;
   color: rgb(17 24 39);
-  font-family: system-ui, -apple-system, sans-serif;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-family-serif);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
 }

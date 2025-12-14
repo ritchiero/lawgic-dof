@@ -173,9 +173,17 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
 }
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
-  const subscription = (invoice as any).subscription;
+  const subscription = (invoice as Stripe.Invoice & { subscription?: unknown }).subscription;
   if (!subscription) return;
-  const subscriptionId = typeof subscription === 'string' ? subscription : subscription.id;
+
+  const subscriptionId =
+    typeof subscription === 'string'
+      ? subscription
+      : typeof subscription === 'object' && subscription !== null && 'id' in subscription
+        ? (subscription as { id: string }).id
+        : null;
+
+  if (!subscriptionId) return;
 
   const usuariosQuery = await db
     .collection(collections.usuarios)

@@ -10,7 +10,11 @@ function initializeFirebase() {
     return getApps()[0];
   }
 
-  if (!process.env.FIREBASE_PROJECT_ID) {
+  const projectId = process.env.FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKeyRaw = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (!projectId || !clientEmail || !privateKeyRaw) {
     console.warn('Firebase credentials not configured');
     return undefined;
   }
@@ -18,9 +22,9 @@ function initializeFirebase() {
   try {
     return initializeApp({
       credential: cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')!,
+        projectId,
+        clientEmail,
+        privateKey: privateKeyRaw.replace(/\\n/g, '\n'),
       }),
     });
   } catch (error) {

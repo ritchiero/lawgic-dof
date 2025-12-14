@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { DEMO_DOCUMENTOS_DOF, DEMO_USUARIOS } from '@/lib/demo-data';
 import { AREAS_ARRAY } from '@/lib/areas';
 
-export async function POST(request: NextRequest) {
+type DemoJobDetalle = {
+  usuario: string;
+  areas: string[];
+  documentos_enviados: number;
+  titulos: string[];
+};
+
+export async function POST(_request: NextRequest) {
   try {
     // Simular el proceso del job diario
     const results = {
@@ -10,7 +17,7 @@ export async function POST(request: NextRequest) {
       documentos_procesados: DEMO_DOCUMENTOS_DOF.length,
       usuarios_activos: DEMO_USUARIOS.filter(u => u.status === 'active').length,
       alertas_enviadas: 0,
-      detalles: [] as any[],
+      detalles: [] as DemoJobDetalle[],
     };
 
     // Para cada usuario activo, determinar qué documentos le corresponden

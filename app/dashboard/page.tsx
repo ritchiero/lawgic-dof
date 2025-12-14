@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 import { Eye, Mail, FileText, Calendar, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { AREAS_ARRAY } from '@/lib/areas';
@@ -14,15 +14,25 @@ interface DemoUser {
 }
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<DemoUser | null>(null);
-  const [documentos, setDocumentos] = useState(DEMO_DOCUMENTOS_DOF);
+  const rawUserData = useSyncExternalStore(
+    (callback) => {
+      window.addEventListener('storage', callback);
+      return () => window.removeEventListener('storage', callback);
+    },
+    () => localStorage.getItem('demo_user'),
+    () => null
+  );
 
-  useEffect(() => {
-    const userData = localStorage.getItem('demo_user');
-    if (userData) {
-      setUser(JSON.parse(userData));
+  const user = useMemo<DemoUser | null>(() => {
+    if (!rawUserData) return null;
+    try {
+      return JSON.parse(rawUserData) as DemoUser;
+    } catch {
+      return null;
     }
-  }, []);
+  }, [rawUserData]);
+
+  const documentos = DEMO_DOCUMENTOS_DOF;
 
   if (!user) {
     return (

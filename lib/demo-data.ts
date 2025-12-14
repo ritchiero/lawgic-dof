@@ -168,8 +168,10 @@ export const DEMO_DOCUMENTOS_DOF: DemoDocumentoDOF[] = [
 ];
 
 // Función para obtener documentos demo con IDs y fechas de publicación
-export function getDemoDocumentos() {
-  return DEMO_DOCUMENTOS_DOF.map((doc: any) => ({
+export type DemoDocumentoFeed = DemoDocumentoDOF & { fecha_publicacion: string };
+
+export function getDemoDocumentos(): DemoDocumentoFeed[] {
+  return DEMO_DOCUMENTOS_DOF.map((doc) => ({
     ...doc,
     fecha_publicacion: doc.fecha,
   }));

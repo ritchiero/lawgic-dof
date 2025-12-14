@@ -1,18 +1,13 @@
 "use client";
 
-import { useEffect, useState, Suspense } from 'react';
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle2, Mail, Eye } from 'lucide-react';
 import Link from 'next/link';
 
 function GraciasContent() {
   const searchParams = useSearchParams();
-  const [sessionId, setSessionId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const id = searchParams.get('session_id');
-    setSessionId(id);
-  }, [searchParams]);
+  const sessionId = searchParams.get('session_id');
 
   return (
     <div className="min-h-screen bg-white">

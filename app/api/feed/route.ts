@@ -8,22 +8,22 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const areasFilter = searchParams.get('areas')?.split(',').filter(Boolean) || [];
     const searchQuery = searchParams.get('q') || '';
-    const savedOnly = searchParams.get('saved') === 'true';
+    const _savedOnly = searchParams.get('saved') === 'true';
 
     // En modo demo, usar datos simulados
     let allDocumentos = getDemoDocumentos();
 
     // Filtrar por áreas si se especificaron
     if (areasFilter.length > 0) {
-      allDocumentos = allDocumentos.filter((doc: any) =>
-        doc.areas_detectadas?.some((area: string) => areasFilter.includes(area))
+      allDocumentos = allDocumentos.filter((doc) =>
+        doc.areas_detectadas?.some((area) => areasFilter.includes(area))
       );
     }
 
     // Filtrar por búsqueda
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      allDocumentos = allDocumentos.filter((doc: any) =>
+      allDocumentos = allDocumentos.filter((doc) =>
         doc.titulo.toLowerCase().includes(query) ||
         doc.resumen_ia?.toLowerCase().includes(query) ||
         doc.tipo_documento?.toLowerCase().includes(query)
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Ordenar por fecha (más recientes primero)
-    allDocumentos.sort((a: any, b: any) => {
+    allDocumentos.sort((a, b) => {
       const fechaA = new Date(a.fecha_publicacion || '2024-01-01');
       const fechaB = new Date(b.fecha_publicacion || '2024-01-01');
       return fechaB.getTime() - fechaA.getTime();

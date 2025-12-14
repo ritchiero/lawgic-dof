@@ -1,11 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { DocumentoDOF } from '@/lib/types';
 import { AREAS_ARRAY } from '@/lib/areas';
 
+export interface DocumentoCardData {
+  id: string;
+  titulo: string;
+  url_dof: string;
+  resumen_ia?: string;
+  fecha_publicacion?: string;
+  edicion?: string;
+  tipo_documento?: string;
+  areas_detectadas?: string[];
+}
+
 interface DocumentCardProps {
-  documento: any;
+  documento: DocumentoCardData;
   onSave?: (id: string) => void;
   onShare?: (id: string) => void;
   isSaved?: boolean;
@@ -25,7 +35,7 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
   };
 
   // Obtener información de áreas
-  const areasInfo = documento.areas_detectadas?.map((codigo: string) => {
+  const areasInfo: Array<{ codigo: string; nombre: string; emoji: string }> = documento.areas_detectadas?.map((codigo) => {
     const area = AREAS_ARRAY.find(a => a.codigo === codigo);
     return area || { codigo, nombre: codigo, emoji: '📄' };
   }) || [];
@@ -39,7 +49,7 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
       {/* Header con áreas y fecha */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex flex-wrap gap-2">
-          {areasInfo.slice(0, 2).map((area: any, idx: number) => (
+          {areasInfo.slice(0, 2).map((area, idx) => (
             <span 
               key={idx}
               className="inline-block text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full font-medium"
@@ -133,7 +143,7 @@ export function DocumentCardCompact({ documento, onSave, isSaved = false }: Docu
     onSave?.(documento.id);
   };
 
-  const areasInfo = documento.areas_detectadas?.map((codigo: string) => {
+  const areasInfo: Array<{ codigo: string; nombre: string; emoji: string }> = documento.areas_detectadas?.map((codigo) => {
     const area = AREAS_ARRAY.find(a => a.codigo === codigo);
     return area || { codigo, nombre: codigo, emoji: '📄' };
   }) || [];

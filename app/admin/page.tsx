@@ -1,27 +1,20 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { Eye, Users, FileText, TrendingUp, Mail, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { DEMO_DOCUMENTOS_DOF, DEMO_USUARIOS } from '@/lib/demo-data';
 import { AREAS_ARRAY } from '@/lib/areas';
 
 export default function AdminPage() {
-  const [stats, setStats] = useState({
-    total_users: 0,
-    active_users: 0,
-    total_documentos: 0,
-    alertas_enviadas: 0,
-  });
-
-  useEffect(() => {
-    // Simular carga de estadísticas
-    setStats({
+  const stats = useMemo(() => {
+    const active_users = DEMO_USUARIOS.filter(u => u.status === 'active').length;
+    return {
       total_users: DEMO_USUARIOS.length,
-      active_users: DEMO_USUARIOS.filter(u => u.status === 'active').length,
+      active_users,
       total_documentos: DEMO_DOCUMENTOS_DOF.length,
-      alertas_enviadas: DEMO_USUARIOS.length * 3,
-    });
+      alertas_enviadas: active_users * 3,
+    };
   }, []);
 
   const getAreaNombre = (codigo: string) => {

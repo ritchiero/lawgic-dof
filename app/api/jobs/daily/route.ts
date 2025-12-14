@@ -125,14 +125,17 @@ export async function POST(request: NextRequest) {
 
       // Filtrar documentos que coincidan con las áreas del usuario
       const documentosParaEnviar = documentosQuery.docs
-        .map((doc) => ({ id: doc.id, ...doc.data() }))
-        .filter((doc: any) => {
+        .map(
+          (doc) =>
+            ({ id: doc.id, ...(doc.data() as Omit<DocumentoDOF, 'id'>) }) as DocumentoDOF
+        )
+        .filter((doc) => {
           if (!doc.areas_detectadas || doc.areas_detectadas.length === 0) return false;
-          return doc.areas_detectadas.some((area: string) => codigosAreas.includes(area));
+          return doc.areas_detectadas.some((area) => codigosAreas.includes(area));
         });
 
       // Si no hay documentos nuevos hoy, obtener últimos 10 históricos
-      let documentosHistoricos: any[] = [];
+      let documentosHistoricos: DocumentoDOF[] = [];
       if (documentosParaEnviar.length === 0) {
         console.log(`Sin documentos nuevos para ${usuario.email}, obteniendo históricos...`);
         
@@ -144,10 +147,13 @@ export async function POST(request: NextRequest) {
           .get();
         
         documentosHistoricos = historicosQuery.docs
-          .map((doc) => ({ id: doc.id, ...doc.data() }))
-          .filter((doc: any) => {
+          .map(
+            (doc) =>
+              ({ id: doc.id, ...(doc.data() as Omit<DocumentoDOF, 'id'>) }) as DocumentoDOF
+          )
+          .filter((doc) => {
             if (!doc.areas_detectadas || doc.areas_detectadas.length === 0) return false;
-            return doc.areas_detectadas.some((area: string) => codigosAreas.includes(area));
+            return doc.areas_detectadas.some((area) => codigosAreas.includes(area));
           })
           .slice(0, 10); // Tomar solo los 10 más recientes
       }
@@ -161,8 +167,8 @@ export async function POST(request: NextRequest) {
       const emailId = await enviarEmailAlerta({
         email: usuario.email,
         nombre: usuario.nombre,
-        documentos: documentosParaEnviar as any,
-        documentosHistoricos: documentosHistoricos as any,
+        documentos: documentosParaEnviar,
+        documentosHistoricos,
         fecha: fechaHoy,
         hayDocumentosNuevos,
       });
