@@ -1,0 +1,26 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Reglas para la colección de documentos del DOF
+    match /documentos_dof/{document} {
+      // Permitir lectura pública (para el feed)
+      allow read: if true;
+      
+      // Solo permitir escritura desde el servidor (Admin SDK)
+      allow write: if false;
+    }
+    
+    // Reglas para la colección de usuarios
+    match /usuarios/{userId} {
+      // Solo permitir lectura/escritura desde el servidor (Admin SDK)
+      allow read, write: if false;
+    }
+    
+    // Reglas para la colección de suscripciones
+    match /suscripciones/{subscriptionId} {
+      // Solo permitir lectura/escritura desde el servidor (Admin SDK)
+      allow read, write: if false;
+    }
+  }
+}

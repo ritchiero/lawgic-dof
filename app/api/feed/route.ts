@@ -19,10 +19,15 @@ export async function GET(request: NextRequest) {
         throw new Error('Firebase not configured');
       }
 
-      // Construir query de Firestore (sin filtro de áreas para evitar necesidad de índice compuesto)
+      // Construir query de Firestore
       let query = db.collection(collections.documentosDof)
         .orderBy('fecha_publicacion', 'desc')
         .limit(100); // Limitar a 100 documentos para evitar costos excesivos
+
+      // Filtrar por áreas si se especificaron (requiere índice compuesto en Firestore)
+      if (areasFilter.length > 0) {
+        query = query.where('areas_clasificadas', 'array-contains-any', areasFilter.slice(0, 10));
+      }
 
       // Ejecutar query
       const snapshot = await query.get();
@@ -42,16 +47,8 @@ export async function GET(request: NextRequest) {
         };
       });
 
-      console.log(`✓ Obtenidos ${documentos.length} documentos de Firestore`);
-
-      // Filtrar por áreas en memoria (para evitar necesidad de índice compuesto en Firestore)
-      if (areasFilter.length > 0) {
-        documentos = documentos.filter(doc => {
-          const docAreas = doc.areas_detectadas || [];
-          return areasFilter.some(area => docAreas.includes(area));
-        });
-        console.log(`✓ Filtrados ${documentos.length} documentos por áreas: ${areasFilter.join(', ')}`);
-      }
+      const filterMsg = areasFilter.length > 0 ? ` (filtrados por: ${areasFilter.join(', ')})` : '';
+      console.log(`✓ Obtenidos ${documentos.length} documentos de Firestore${filterMsg}`);
     } catch (firestoreError) {
       console.warn('Error obteniendo documentos de Firestore, usando datos de ejemplo:', firestoreError);
       // Fallback a datos de ejemplo si Firestore falla

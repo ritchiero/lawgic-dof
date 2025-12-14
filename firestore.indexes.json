@@ -1,0 +1,19 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "documentos_dof",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "areas_clasificadas",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "fecha_publicacion",
+          "order": "DESCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
