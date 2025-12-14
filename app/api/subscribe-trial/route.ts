@@ -21,8 +21,12 @@ export async function POST(request: NextRequest) {
 
     if (!existingUser.empty) {
       return NextResponse.json(
-        { error: 'Este email ya está registrado' },
-        { status: 400 }
+        { 
+          error: 'email_exists',
+          message: 'Este email ya está registrado. Si ya tienes una cuenta, revisa tu email para acceder.',
+          email 
+        },
+        { status: 409 } // 409 Conflict
       );
     }
 
@@ -64,10 +68,25 @@ export async function POST(request: NextRequest) {
       trialEndsAt: trialEndsAt.toISOString(),
       message: '¡Cuenta creada! Revisa tu email para confirmar.',
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating trial user:', error);
+    
+    // Manejo específico de errores de Firebase
+    if (error.code === 'permission-denied') {
+      return NextResponse.json(
+        { 
+          error: 'permission_denied',
+          message: 'Error de permisos. Por favor contacta a soporte.' 
+        },
+        { status: 403 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: 'Error al crear la cuenta' },
+      { 
+        error: 'server_error',
+        message: 'Error al crear la cuenta. Por favor intenta de nuevo en unos momentos.' 
+      },
       { status: 500 }
     );
   }

@@ -54,12 +54,33 @@ export default function OnboardingPage() {
         // Redirigir a welcome page
         router.push('/welcome');
       } else {
-        const error = await response.json();
-        alert(error.message || 'Error al crear la cuenta');
+        const errorData = await response.json();
+        
+        // Mensajes específicos según el tipo de error
+        if (errorData.error === 'email_exists') {
+          alert(
+            '✉️ Este email ya está registrado\n\n' +
+            'Si ya tienes una cuenta, revisa tu email para acceder a tu feed personalizado.\n\n' +
+            'Si no recuerdas tu contraseña o necesitas ayuda, contáctanos.'
+          );
+        } else if (errorData.error === 'permission_denied') {
+          alert(
+            '🚫 Error de permisos\n\n' +
+            'Hubo un problema con los permisos del servidor. Por favor contacta a soporte.'
+          );
+        } else {
+          alert(
+            '⚠️ ' + (errorData.message || 'Error al crear la cuenta') + '\n\n' +
+            'Si el problema persiste, por favor contáctanos.'
+          );
+        }
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Error al crear la cuenta. Por favor intenta de nuevo.');
+      alert(
+        '🚫 Error de conexión\n\n' +
+        'No pudimos conectar con el servidor. Por favor verifica tu conexión a internet e intenta de nuevo.'
+      );
     } finally {
       setLoading(false);
     }
