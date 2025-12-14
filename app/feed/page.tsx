@@ -7,7 +7,6 @@ import { Newspaper, Search, Filter, Bookmark, Mail, X } from 'lucide-react';
 
 // Forzar renderizado dinámico (no SSG)
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 interface Documento {
   id: string;
