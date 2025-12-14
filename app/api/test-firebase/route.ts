@@ -20,7 +20,7 @@ export async function GET() {
     const docs = docsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }));
+    })) as any[];
 
     return NextResponse.json({
       success: true,
@@ -29,7 +29,7 @@ export async function GET() {
         connected: true,
         collection: collections.documentosDof,
         documentsFound: docs.length,
-        sampleDocs: docs.map(d => ({
+        sampleDocs: docs.map((d: any) => ({
           id: d.id,
           titulo: d.titulo?.substring(0, 50) || 'Sin título',
           fecha: d.fecha_publicacion || 'Sin fecha'
