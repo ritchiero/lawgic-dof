@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { DocumentCard, DocumentCardSkeleton } from '@/components/DocumentCard';
 import { AREAS_ARRAY } from '@/lib/areas';
-import { Newspaper, Search, Filter, Bookmark } from 'lucide-react';
+import { Newspaper, Search, Filter, Bookmark, Mail, X } from 'lucide-react';
 
 interface Documento {
   id: string;
@@ -26,6 +26,7 @@ export default function FeedPage() {
   const [savedDocs, setSavedDocs] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [showBanner, setShowBanner] = useState(true);
   
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -222,6 +223,38 @@ export default function FeedPage() {
           )}
         </div>
       </header>
+
+      {/* Banner CTA */}
+      {showBanner && (
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+          <div className="max-w-3xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 flex-1">
+                <Mail className="w-6 h-6 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="font-semibold text-sm md:text-base">¿Te gusta lo que ves?</p>
+                  <p className="text-xs md:text-sm text-blue-100">Recibe estas alertas por email 2 veces al día • 7 días gratis</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href="/onboarding"
+                  className="px-4 py-2 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition text-sm whitespace-nowrap"
+                >
+                  Suscribirse
+                </a>
+                <button
+                  onClick={() => setShowBanner(false)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition"
+                  aria-label="Cerrar"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Feed de documentos */}
       <main className="max-w-3xl mx-auto px-4 py-6">

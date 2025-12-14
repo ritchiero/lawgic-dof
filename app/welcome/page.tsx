@@ -39,8 +39,11 @@ export default function WelcomePage() {
           <h1 className="font-serif text-4xl font-bold text-gray-900 mb-4">
             ¡Bienvenido a DOF Alertas!
           </h1>
-          <p className="text-xl text-gray-600">
-            Tu suscripción está activa. Comencemos a explorar.
+          <p className="text-xl text-gray-600 mb-2">
+            ¡Tu prueba gratis de 7 días ha comenzado!
+          </p>
+          <p className="text-sm text-gray-500">
+            Sin tarjeta de crédito • Cancela cuando quieras
           </p>
         </div>
 
@@ -74,7 +77,7 @@ export default function WelcomePage() {
                   Recibir Alertas Diarias
                 </h3>
                 <p className="text-sm text-gray-600">
-                  Recibirás emails a las 8:30 AM y 4:30 PM con documentos nuevos de tus áreas.
+                  Recibirás emails a las 8:30 AM y 4:30 PM con documentos nuevos de tus áreas durante los próximos 7 días.
                 </p>
               </div>
             </div>
