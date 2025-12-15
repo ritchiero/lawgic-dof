@@ -229,37 +229,36 @@ export async function generateDocumentImage(
     const prompt = generatePrompt(params);
     console.log('📝 Prompt generado (primeras 200 chars):', prompt.substring(0, 200) + '...');
 
-    // Llamar a Gemini 3 Pro Image usando Interactions API
+    // Llamar a Gemini 3 Pro Image usando generateContent
     const ai = getAI();
-    const interaction = await ai.interactions.create({
+    const response = await ai.models.generateContent({
       model: 'gemini-3-pro-image-preview',
-      input: prompt,
-      response_modalities: ['image'],
+      contents: prompt,
+      config: {
+        responseModalities: ['IMAGE'],
+        imageConfig: {
+          aspectRatio: '1:1',
+        }
+      }
     });
 
-    console.log('✅ Interacción creada, procesando outputs...');
+    console.log('✅ Respuesta recibida, procesando partes...');
 
-    // Extraer imagen de los outputs
-    for (const output of interaction.outputs || []) {
-      if (output.type === 'image') {
-        console.log(`✅ Imagen generada con mime_type: ${output.mime_type}`);
-        
-        // Convertir base64 a string si es necesario
-        let imageBase64: string;
-        if (typeof output.data === 'string') {
-          imageBase64 = output.data;
-        } else if (output.data) {
-          imageBase64 = Buffer.from(output.data as unknown as ArrayBuffer).toString('base64');
-        } else {
-          console.error('❌ output.data es undefined');
-          continue;
+    // Extraer imagen de la respuesta
+    if (response.candidates && response.candidates.length > 0) {
+      const candidate = response.candidates[0];
+      if (candidate.content && candidate.content.parts) {
+        for (const part of candidate.content.parts) {
+          if (part.inlineData) {
+            console.log(`✅ Imagen generada con mimeType: ${part.inlineData.mimeType}`);
+            
+            return {
+              success: true,
+              imageBase64: part.inlineData.data,
+              prompt
+            };
+          }
         }
-        
-        return {
-          success: true,
-          imageBase64,
-          prompt
-        };
       }
     }
 
