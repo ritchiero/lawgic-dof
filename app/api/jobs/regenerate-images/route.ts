@@ -78,15 +78,19 @@ export async function POST(request: NextRequest) {
           
           if (imageResult.success) {
             // Actualizar documento
-            await docSnapshot.ref.update({
+            const updateData: any = {
               image_url: imageResult.publicUrl,
               image_storage_path: imageResult.storagePath,
               image_generated_with_ai: true,
-              social_headline: copy?.headline,
-              social_tagline: copy?.tagline,
-              social_impact_data: copy?.impactData,
               image_regenerated_at: new Date().toISOString(),
-            });
+            };
+            
+            // Solo agregar campos de copy social si existen
+            if (copy?.headline) updateData.social_headline = copy.headline;
+            if (copy?.tagline) updateData.social_tagline = copy.tagline;
+            if (copy?.impactData) updateData.social_impact_data = copy.impactData;
+            
+            await docSnapshot.ref.update(updateData);
             
             exitosos++;
             detalles.push({
@@ -108,11 +112,14 @@ export async function POST(request: NextRequest) {
         } else {
           // Solo actualizar copy social
           if (copy) {
-            await docSnapshot.ref.update({
-              social_headline: copy.headline,
-              social_tagline: copy.tagline,
-              social_impact_data: copy.impactData,
-            });
+            const updateData: any = {};
+            if (copy.headline) updateData.social_headline = copy.headline;
+            if (copy.tagline) updateData.social_tagline = copy.tagline;
+            if (copy.impactData) updateData.social_impact_data = copy.impactData;
+            
+            if (Object.keys(updateData).length > 0) {
+              await docSnapshot.ref.update(updateData);
+            }
           }
           
           fallidos++;
