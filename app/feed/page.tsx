@@ -259,25 +259,47 @@ export default function FeedPage() {
             </button>
           </div>
 
-          {/* Barra de búsqueda con feedback */}
-          <div className="relative mb-3">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Buscar documentos..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-600 focus:outline-none text-sm transition-colors"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                title="Limpiar búsqueda"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+          {/* Barra de búsqueda y filtros en una sola fila */}
+          <div className="flex items-center gap-2 mb-3">
+            {/* Barra de búsqueda */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Buscar documentos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-600 focus:outline-none text-sm transition-colors"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  title="Limpiar búsqueda"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Botón de filtros */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                selectedAreas.length > 0
+                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+              title="Filtrar por áreas"
+            >
+              <Filter className="w-4 h-4" />
+              <span className="hidden sm:inline">Filtros</span>
+              {selectedAreas.length > 0 && (
+                <span className="bg-white/20 px-1.5 py-0.5 rounded-full text-xs font-bold">
+                  {selectedAreas.length}
+                </span>
+              )}
+            </button>
           </div>
 
           {/* Feedback de búsqueda activa */}
@@ -286,19 +308,6 @@ export default function FeedPage() {
               Mostrando resultados para: <span className="font-semibold">&quot;{searchQuery}&quot;</span>
             </div>
           )}
-
-          {/* Botón de filtros con indicador mejorado */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              selectedAreas.length > 0
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            <Filter className="w-4 h-4" />
-            Filtros {selectedAreas.length > 0 && `(${selectedAreas.length})`}
-          </button>
         </div>
       </header>
 
