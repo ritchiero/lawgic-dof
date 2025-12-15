@@ -8,23 +8,26 @@ import { GoogleAuth } from 'google-auth-library';
 import { VERTEX_AI_CONFIG, IMAGE_GENERATION_CONFIG, buildImagePrompt } from '../vertex-ai-config';
 
 /**
- * Cliente de autenticación de Google Cloud
+ * Cliente de autenticación de Google Cloud (inicialización lazy)
  */
-const auth = new GoogleAuth({
-  credentials: {
-    type: 'service_account',
-    project_id: process.env.GOOGLE_CLOUD_PROJECT_ID!,
-    private_key_id: process.env.GOOGLE_CLOUD_PRIVATE_KEY_ID!,
-    private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY!.replace(/\\n/g, '\n'),
-    client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL!,
-    client_id: process.env.GOOGLE_CLOUD_CLIENT_ID!,
-    auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-    token_uri: 'https://oauth2.googleapis.com/token',
-    auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
-    client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${process.env.GOOGLE_CLOUD_CLIENT_EMAIL!.replace('@', '%40')}`,
-  },
-  scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-});
+let _auth: GoogleAuth | null = null;
+
+function getAuth(): GoogleAuth {
+  if (!_auth) {
+    _auth = new GoogleAuth({
+      credentials: {
+        type: 'service_account',
+        project_id: process.env.GOOGLE_CLOUD_PROJECT_ID!,
+        private_key_id: process.env.GOOGLE_CLOUD_PRIVATE_KEY_ID!,
+        private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n') || '',
+        client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL!,
+        client_id: process.env.GOOGLE_CLOUD_CLIENT_ID!,
+      },
+      scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+    });
+  }
+  return _auth;
+}
 
 /**
  * Genera una imagen con Vertex AI Imagen 4 Fast
@@ -46,7 +49,7 @@ export async function generateImageWithVertexAI(params: {
     console.log(`[Vertex AI] Prompt: ${prompt.substring(0, 100)}...`);
     
     // Obtener token de acceso
-    const client = await auth.getClient();
+    const client = await getAuth().getClient();
     const accessToken = await client.getAccessToken();
     
     if (!accessToken.token) {
