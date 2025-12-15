@@ -6,6 +6,7 @@
 
 import { GoogleAuth } from 'google-auth-library';
 import { VERTEX_AI_CONFIG, IMAGE_GENERATION_CONFIG, buildImagePrompt } from '../vertex-ai-config';
+import { generateSocialCopy, generateImagePrompt, type SocialCopy } from './social-copywriter';
 
 /**
  * Cliente de autenticación de Google Cloud (inicialización lazy)
@@ -30,22 +31,38 @@ function getAuth(): GoogleAuth {
 }
 
 /**
- * Genera una imagen con Vertex AI Imagen 4 Fast
+ * Genera una imagen con Vertex AI Imagen 4 Fast usando copy social atractivo
  */
 export async function generateImageWithVertexAI(params: {
   categoria: string;
   titulo: string;
   tipo: string;
   documentoId: string;
-}): Promise<Buffer | null> {
+  resumen?: string;
+}): Promise<{ buffer: Buffer | null; copy?: SocialCopy }> {
   try {
-    const { categoria, titulo, tipo, documentoId } = params;
+    const { categoria, titulo, tipo, documentoId, resumen } = params;
     
     console.log(`[Vertex AI] Generando imagen para documento: ${documentoId}`);
     console.log(`[Vertex AI] Categoría: ${categoria}, Tipo: ${tipo}`);
     
-    // Construir prompt
-    const prompt = buildImagePrompt({ categoria, titulo, tipo });
+    // PASO 1 & 2: Generar copy social atractivo
+    let socialCopy: SocialCopy | undefined;
+    let prompt: string;
+    
+    if (resumen) {
+      console.log(`[Vertex AI] Generando copy social...`);
+      socialCopy = await generateSocialCopy(titulo, resumen, categoria, tipo);
+      console.log(`[Vertex AI] Headline: ${socialCopy.headline}`);
+      console.log(`[Vertex AI] Tagline: ${socialCopy.tagline}`);
+      
+      // PASO 3: Generar prompt de imagen con el copy
+      prompt = generateImagePrompt(socialCopy, categoria);
+    } else {
+      // Fallback: usar prompt original
+      prompt = buildImagePrompt({ categoria, titulo, tipo });
+    }
+    
     console.log(`[Vertex AI] Prompt: ${prompt.substring(0, 100)}...`);
     
     // Obtener token de acceso
@@ -95,7 +112,7 @@ export async function generateImageWithVertexAI(params: {
     // Extraer imagen base64
     if (!result.predictions || result.predictions.length === 0) {
       console.error('[Vertex AI] No se generaron imágenes');
-      return null;
+      return { buffer: null, copy: socialCopy };
     }
     
     const prediction = result.predictions[0];
@@ -103,7 +120,7 @@ export async function generateImageWithVertexAI(params: {
     
     if (!imageBase64) {
       console.error('[Vertex AI] No se encontró imagen en la respuesta');
-      return null;
+      return { buffer: null, copy: socialCopy };
     }
     
     // Convertir base64 a Buffer
@@ -111,11 +128,11 @@ export async function generateImageWithVertexAI(params: {
     
     console.log(`[Vertex AI] Imagen generada exitosamente: ${imageBuffer.length} bytes`);
     
-    return imageBuffer;
+    return { buffer: imageBuffer, copy: socialCopy };
     
   } catch (error) {
     console.error('[Vertex AI] Error generando imagen:', error);
-    return null;
+    return { buffer: null, copy: undefined };
   }
 }
 
@@ -127,15 +144,16 @@ export async function generateImageWithFallback(params: {
   titulo: string;
   tipo: string;
   documentoId: string;
-}): Promise<{ buffer: Buffer | null; isGenerated: boolean }> {
-  // Intentar generar con Vertex AI
-  const buffer = await generateImageWithVertexAI(params);
+  resumen?: string;
+}): Promise<{ buffer: Buffer | null; isGenerated: boolean; copy?: SocialCopy }> {
+  // Intentar generar con Vertex AI (con copy social si hay resumen)
+  const result = await generateImageWithVertexAI(params);
   
-  if (buffer) {
-    return { buffer, isGenerated: true };
+  if (result.buffer) {
+    return { buffer: result.buffer, isGenerated: true, copy: result.copy };
   }
   
   // Fallback: usar imagen de categoría estática
   console.log(`[Vertex AI] Fallback a imagen de categoría para: ${params.documentoId}`);
-  return { buffer: null, isGenerated: false };
+  return { buffer: null, isGenerated: false, copy: result.copy };
 }

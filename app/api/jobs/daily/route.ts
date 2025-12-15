@@ -86,12 +86,13 @@ export async function POST(request: NextRequest) {
         ? resultado.areas[0] 
         : 'Administrativo';
       
-      // Generar imagen con Vertex AI (con fallback a imagen de categoría)
-      const { buffer, isGenerated } = await generateImageWithFallback({
+      // Generar imagen con Vertex AI (con copy social y fallback a imagen de categoría)
+      const { buffer, isGenerated, copy } = await generateImageWithFallback({
         categoria: categoriaPrincipal,
         titulo: doc.titulo,
         tipo: doc.tipo_documento || 'Documento',
         documentoId: docSnapshot.id,
+        resumen: resultado.resumen, // Pasar resumen para generar copy social
       });
       
       if (buffer && isGenerated) {
@@ -111,8 +112,16 @@ export async function POST(request: NextRequest) {
             image_url: imageResult.publicUrl,
             image_storage_path: imageResult.storagePath,
             image_generated_with_ai: true,
+            // Guardar copy social para usar en redes sociales
+            social_headline: copy?.headline,
+            social_tagline: copy?.tagline,
+            social_impact_data: copy?.impactData,
           });
           console.log(`✅ Imagen generada con Vertex AI: ${imageResult.publicUrl}`);
+          if (copy) {
+            console.log(`   Headline: ${copy.headline}`);
+            console.log(`   Tagline: ${copy.tagline}`);
+          }
         } else {
           console.error(`❌ Error subiendo imagen: ${imageResult.error}`);
         }
