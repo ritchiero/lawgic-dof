@@ -12,6 +12,20 @@ function initializeFirebase() {
     return getApps()[0];
   }
 
+  // Try using GOOGLE_APPLICATION_CREDENTIALS first (for local development)
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    try {
+      const serviceAccount = require(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+      return initializeApp({
+        credential: cert(serviceAccount),
+        storageBucket: process.env.FIREBASE_STORAGE_BUCKET || serviceAccount.project_id + '.firebasestorage.app',
+      });
+    } catch (error) {
+      console.error('Failed to initialize Firebase with GOOGLE_APPLICATION_CREDENTIALS:', error);
+    }
+  }
+
+  // Fallback to environment variables (for Vercel)
   if (!process.env.FIREBASE_PROJECT_ID) {
     console.warn('Firebase credentials not configured');
     return undefined;
