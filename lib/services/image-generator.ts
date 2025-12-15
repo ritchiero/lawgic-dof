@@ -6,7 +6,8 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { AREAS_ARRAY } from '@/lib/areas';
 
-// Inicializar cliente de Gemini
+// Inicializar cliente de Gemini (será usado cuando se configure Vertex AI)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || '');
 
 // Mapa de colores por categoría (para prompts)
