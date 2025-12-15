@@ -308,7 +308,7 @@ export default function FeedPage() {
 
       {/* Modal de filtros */}
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
-        <DialogContent className="max-w-5xl max-h-[90vh] p-0 gap-0 overflow-hidden">
+        <DialogContent className="max-w-6xl max-h-[90vh] p-0 gap-0 overflow-hidden">
           {/* Header */}
           <div className="px-5 pt-5 pb-3 border-b">
             <DialogTitle className="text-lg font-bold text-gray-900">
