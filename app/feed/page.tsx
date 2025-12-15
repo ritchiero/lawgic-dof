@@ -335,9 +335,9 @@ export default function FeedPage() {
                     }`}
                   >
                     <span className="text-base flex-shrink-0">{area.emoji}</span>
-                    <span className={`text-xs font-medium flex-1 leading-tight break-words ${
+                    <span className={`text-xs font-medium flex-1 leading-tight ${
                       isSelected ? 'text-white' : 'text-gray-700'
-                    }`}>
+                    }`} style={{ wordBreak: 'break-word', overflowWrap: 'break-word', hyphens: 'auto' }}>
                       {area.nombre}
                     </span>
                     {isSelected && (
