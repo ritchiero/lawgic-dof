@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, collections } from '@/lib/firebase';
-import { generateImageWithFallback } from '@/lib/services/vertex-image-generator';
+import { generateImageWithFallback } from '@/lib/services/dalle-image-generator';
 import { generateAndUploadDocumentImage } from '@/lib/services/image-storage';
 
 export const maxDuration = 300; // 5 minutos

@@ -4,7 +4,7 @@ import { obtenerDocumentosDOF, obtenerExtracto, determinarEdicionActual } from '
 import { clasificarDocumento } from '@/lib/services/clasificador';
 import { enviarEmailAlerta } from '@/lib/services/emailer';
 import { generateAndUploadDocumentImage } from '@/lib/services/image-storage';
-import { generateImageWithFallback } from '@/lib/services/vertex-image-generator';
+import { generateImageWithFallback } from '@/lib/services/dalle-image-generator';
 import { DocumentoDOF } from '@/lib/types';
 import { FieldValue } from 'firebase-admin/firestore';
 
