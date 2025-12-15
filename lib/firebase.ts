@@ -1,8 +1,10 @@
 import { initializeApp, getApps, cert, App } from 'firebase-admin/app';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
+import { getStorage, Storage } from 'firebase-admin/storage';
 
 let app: App | undefined;
 let firestoreInstance: Firestore | undefined;
+let storageInstance: Storage | undefined;
 
 // Inicializar Firebase Admin (para el servidor)
 function initializeFirebase() {
@@ -22,6 +24,7 @@ function initializeFirebase() {
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL!,
         privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')!,
       }),
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     });
   } catch (error) {
     console.error('Failed to initialize Firebase:', error);
@@ -45,10 +48,32 @@ export function getDb(): Firestore {
   return firestoreInstance;
 }
 
+// Lazy initialization for Storage
+export function getStorageInstance(): Storage {
+  if (!storageInstance) {
+    app = initializeFirebase();
+    if (app) {
+      storageInstance = getStorage(app);
+    }
+  }
+  
+  if (!storageInstance) {
+    throw new Error('Storage not initialized. Check Firebase credentials.');
+  }
+  
+  return storageInstance;
+}
+
 // Export for convenience (but will throw if not initialized)
 export const db = new Proxy({} as Firestore, {
   get(target, prop) {
     return getDb()[prop as keyof Firestore];
+  }
+});
+
+export const storage = new Proxy({} as Storage, {
+  get(target, prop) {
+    return getStorageInstance()[prop as keyof Storage];
   }
 });
 

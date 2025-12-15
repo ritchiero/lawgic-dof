@@ -3,6 +3,7 @@ import { db, collections } from '@/lib/firebase';
 import { obtenerDocumentosDOF, obtenerExtracto, determinarEdicionActual } from '@/lib/services/scraper';
 import { clasificarDocumento } from '@/lib/services/clasificador';
 import { enviarEmailAlerta } from '@/lib/services/emailer';
+import { generateAndUploadDocumentImage } from '@/lib/services/image-storage';
 import { DocumentoDOF } from '@/lib/types';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -75,6 +76,27 @@ export async function POST(request: NextRequest) {
         resumen_ia: resultado.resumen,
         procesado: true,
       });
+
+      // PASO 2.5: Generar y subir imagen hero
+      console.log(`Generando imagen hero para: ${doc.titulo.substring(0, 50)}...`);
+      const imageResult = await generateAndUploadDocumentImage({
+        documentId: docSnapshot.id,
+        titulo: doc.titulo,
+        tipo_documento: doc.tipo_documento || 'Documento',
+        fecha_publicacion: doc.fecha_publicacion,
+        areas_detectadas: resultado.areas,
+        edicion: doc.edicion,
+      });
+
+      if (imageResult.success) {
+        await docSnapshot.ref.update({
+          image_url: imageResult.publicUrl,
+          image_storage_path: imageResult.storagePath,
+        });
+        console.log(`✅ Imagen generada: ${imageResult.publicUrl}`);
+      } else {
+        console.error(`❌ Error generando imagen: ${imageResult.error}`);
+      }
 
       // Pequeña pausa para no saturar la API
       await new Promise((resolve) => setTimeout(resolve, 1000));

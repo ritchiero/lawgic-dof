@@ -29,6 +29,8 @@ export interface DocumentoDOF {
   areas_detectadas?: string[];
   edicion?: string;
   procesado: boolean;
+  image_url?: string;  // URL de la imagen hero generada
+  image_storage_path?: string;  // Path en Firebase Storage
   created_at: Timestamp;
 }
 
