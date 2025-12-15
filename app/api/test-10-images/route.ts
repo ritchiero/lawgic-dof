@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/firebase-admin';
+import { db } from '@/lib/firebase';
 import { generateDocumentImageWithFallback } from '@/lib/services/gemini-image-generator';
 
 interface TestResult {
