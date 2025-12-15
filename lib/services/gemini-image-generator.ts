@@ -14,10 +14,19 @@ function getGeminiClient() {
     throw new Error('GOOGLE_CLOUD_PROJECT_ID no está configurado');
   }
 
+  // Configurar credenciales de Service Account
+  const credentials = {
+    client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL,
+    private_key: (process.env.GOOGLE_CLOUD_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY)?.replace(/\\n/g, '\n'),
+  };
+
   return new GoogleGenAI({
     vertexai: true,
     project: process.env.GOOGLE_CLOUD_PROJECT_ID,
-    location: 'global',
+    location: 'us-central1', // Cambiar de 'global' a región específica
+    authOptions: {
+      credentials,
+    },
   });
 }
 
