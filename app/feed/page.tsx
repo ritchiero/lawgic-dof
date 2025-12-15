@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { DocumentCard, DocumentCardSkeleton } from '@/components/DocumentCard';
 import { AREAS_ARRAY } from '@/lib/areas';
-import { Newspaper, Search, Filter, Bookmark, Mail, X } from 'lucide-react';
+import { Newspaper, Search, Filter, Bookmark, Mail, X, Check } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 // Forzar renderizado dinámico (no SSG)
 export const dynamic = 'force-dynamic';
@@ -195,35 +196,7 @@ export default function FeedPage() {
             Filtros {selectedAreas.length > 0 && `(${selectedAreas.length})`}
           </button>
 
-          {/* Panel de filtros */}
-          {showFilters && (
-            <div className="mt-3 p-4 bg-gray-50 border-2 border-dashed border-gray-300 rounded-none">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Áreas de Práctica</h3>
-              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
-                {AREAS_ARRAY.map(area => (
-                  <button
-                    key={area.codigo}
-                    onClick={() => toggleArea(area.codigo)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      selectedAreas.includes(area.codigo)
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-600'
-                    }`}
-                  >
-                    {area.emoji} {area.nombre}
-                  </button>
-                ))}
-              </div>
-              {selectedAreas.length > 0 && (
-                <button
-                  onClick={() => setSelectedAreas([])}
-                  className="mt-3 text-xs text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Limpiar filtros
-                </button>
-              )}
-            </div>
-          )}
+
         </div>
       </header>
 
@@ -332,6 +305,67 @@ export default function FeedPage() {
           </div>
         )}
       </main>
+
+      {/* Modal de filtros */}
+      <Dialog open={showFilters} onOpenChange={setShowFilters}>
+        <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-gray-900">
+              Filtrar por Área de Práctica
+            </DialogTitle>
+            <p className="text-sm text-gray-500 mt-1">
+              Selecciona las áreas de tu interés para filtrar los documentos
+            </p>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto px-6 py-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+              {AREAS_ARRAY.map(area => {
+                const isSelected = selectedAreas.includes(area.codigo);
+                return (
+                  <button
+                    key={area.codigo}
+                    onClick={() => toggleArea(area.codigo)}
+                    className={`relative flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left ${
+                      isSelected
+                        ? 'bg-blue-600 border-blue-600 shadow-md shadow-blue-500/25 scale-[1.02]'
+                        : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm'
+                    }`}
+                  >
+                    <span className="text-xl flex-shrink-0">{area.emoji}</span>
+                    <span className={`text-sm font-medium flex-1 ${
+                      isSelected ? 'text-white' : 'text-gray-700'
+                    }`}>
+                      {area.nombre}
+                    </span>
+                    {isSelected && (
+                      <Check className="w-5 h-5 text-white flex-shrink-0" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          
+          <div className="sticky bottom-0 bg-white border-t pt-4 px-6 pb-4">
+            <div className="flex justify-between items-center">
+              <button
+                onClick={() => setSelectedAreas([])}
+                disabled={selectedAreas.length === 0}
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+              >
+                Limpiar filtros
+              </button>
+              <button
+                onClick={() => setShowFilters(false)}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+              >
+                Aplicar {selectedAreas.length > 0 && `(${selectedAreas.length})`}
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
