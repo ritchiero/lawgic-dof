@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AREAS_ARRAY } from '@/lib/areas';
-import { Heart, Share2, ExternalLink, Clock, Sparkles } from 'lucide-react';
+import { Heart, Share2, ExternalLink, Clock, Sparkles, Eye } from 'lucide-react';
 import Image from 'next/image';
 
 interface DocumentCardProps {
@@ -19,15 +19,15 @@ const CATEGORY_IMAGES: Record<string, string> = {
   laboral: '/images/categories/laboral.png',
   penal: '/images/categories/penal.png',
   civil: '/images/categories/civil.png',
-  mercantil: '/images/categories/corporativo.png', // Reusar corporativo
+  mercantil: '/images/categories/corporativo.png',
   administrativo: '/images/categories/administrativo.png',
   constitucional: '/images/categories/constitucional.png',
-  bancario: '/images/categories/fiscal.png', // Reusar fiscal
+  bancario: '/images/categories/fiscal.png',
   ambiental: '/images/categories/ambiental.png',
   default: '/images/categories/administrativo.png',
 };
 
-// Mapa de colores por categoría (para badges y acentos)
+// Mapa de colores por categoría
 const CATEGORY_COLORS: Record<string, { border: string; bg: string; text: string }> = {
   fiscal: { border: 'border-blue-600', bg: 'bg-blue-50', text: 'text-blue-700' },
   corporativo: { border: 'border-indigo-600', bg: 'bg-indigo-50', text: 'text-indigo-700' },
@@ -85,8 +85,9 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
     documento.tipo_documento?.includes(tipo) || documento.titulo?.includes(tipo)
   );
 
-  // Simular número de guardados (en producción vendría del backend)
+  // Simular número de guardados y vistas (en producción vendría del backend)
   const savedCount = Math.floor(Math.random() * 50) + 5;
+  const viewCount = Math.floor(Math.random() * 200) + 20;
 
   // Extraer palabras clave del título (máximo 3 palabras)
   const extractKeywords = (titulo: string): string => {
@@ -115,7 +116,7 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
         transition-all duration-300 ease-out
         overflow-hidden
         group
-        mb-3
+        mb-5
       `}
     >
       {/* Imagen de fondo con overlay de texto */}
@@ -138,28 +139,31 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200"></div>
         )}
 
+        {/* Overlay semi-transparente para mejorar contraste */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20"></div>
+
         {/* Text Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-          {/* Emoji grande */}
-          <div className="text-[72px] mb-3 drop-shadow-lg">
+          {/* Emoji más pequeño */}
+          <div className="text-5xl mb-2 drop-shadow-lg filter brightness-110">
             {primaryArea?.emoji || '📄'}
           </div>
 
-          {/* Palabras clave */}
-          <h3 className="text-xl font-bold text-gray-800 mb-2 drop-shadow-md leading-tight max-w-[80%]">
+          {/* Palabras clave con mejor contraste */}
+          <h3 className="text-xl font-bold text-gray-900 mb-2 drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)] leading-tight max-w-[85%]">
             {keywords}
           </h3>
 
           {/* Categoría */}
-          <p className="text-base text-gray-700 mb-2 drop-shadow-sm font-medium">
+          <p className="text-base text-gray-800 mb-2 drop-shadow-[0_1px_2px_rgba(255,255,255,0.6)] font-semibold">
             {primaryArea?.nombre || 'General'}
           </p>
 
           {/* Separador decorativo */}
-          <div className="w-20 h-0.5 bg-gray-300 mb-2"></div>
+          <div className="w-20 h-0.5 bg-gray-400 mb-2 shadow-sm"></div>
 
           {/* Metadata */}
-          <p className="text-sm text-gray-600 drop-shadow-sm">
+          <p className="text-sm text-gray-700 drop-shadow-[0_1px_2px_rgba(255,255,255,0.6)] font-medium">
             {new Date(documento.fecha_publicacion).toLocaleDateString('es-MX', { 
               day: '2-digit', 
               month: 'short' 
@@ -183,55 +187,64 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
         </div>
       </div>
 
-      {/* Contenido inferior (título completo, resumen, acciones) */}
-      <div className="p-4">
-        {/* Título completo */}
+      {/* Contenido inferior */}
+      <div className="p-5">
+        {/* Título completo - mostrar 3 líneas antes de cortar */}
         <h4 
-          className="font-serif font-bold text-base leading-tight mb-2 text-gray-900 cursor-pointer hover:text-blue-600 transition-colors line-clamp-2"
+          className="font-serif font-bold text-base leading-tight mb-3 text-gray-900 cursor-pointer hover:text-blue-600 transition-colors line-clamp-3"
           onClick={() => setExpanded(!expanded)}
+          title={documento.titulo}
         >
           {documento.titulo}
         </h4>
 
         {/* Resumen */}
-        <p className={`text-xs leading-relaxed text-gray-600 mb-3 ${expanded ? '' : 'line-clamp-2'}`}>
+        <p className={`text-sm leading-relaxed text-gray-600 mb-4 ${expanded ? '' : 'line-clamp-2'}`}>
           {documento.resumen_ia || 'Resumen no disponible'}
         </p>
 
         {/* Separador */}
-        <div className="border-t border-gray-100 mb-3"></div>
+        <div className="border-t border-gray-100 mb-4"></div>
 
         {/* Acciones - estilo redes sociales */}
         <div className="flex items-center justify-between">
-          {/* Lado izquierdo: Interacciones */}
-          <div className="flex items-center gap-4">
-            {/* Botón de guardar con animación */}
+          {/* Lado izquierdo: Interacciones con contexto */}
+          <div className="flex items-center gap-5">
+            {/* Botón de guardar con animación y contexto */}
             <button
               onClick={handleSave}
-              className="flex items-center gap-1.5 text-sm font-semibold transition-all hover:scale-110"
+              className="flex items-center gap-1.5 text-sm font-semibold transition-all hover:scale-105 group/save"
+              title={saved ? 'Quitar de guardados' : 'Guardar documento'}
             >
               <Heart 
                 className={`w-5 h-5 transition-all ${
                   saved 
                     ? 'fill-red-500 text-red-500' 
-                    : 'text-gray-400 hover:text-red-500'
+                    : 'text-gray-400 group-hover/save:text-red-500'
                 } ${isAnimating ? 'animate-bounce' : ''}`}
               />
-              <span className={saved ? 'text-red-500' : 'text-gray-600'}>
+              <span className={`${saved ? 'text-red-500' : 'text-gray-600'} group-hover/save:text-red-500`}>
                 {savedCount + (saved ? 1 : 0)}
               </span>
             </button>
 
-            {/* Botón de compartir */}
+            {/* Vistas con icono */}
+            <div className="flex items-center gap-1.5 text-sm text-gray-500" title="Vistas">
+              <Eye className="w-4 h-4" />
+              <span>{viewCount}</span>
+            </div>
+
+            {/* Botón de compartir con tooltip */}
             <button
               onClick={handleShare}
-              className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors hover:scale-110"
+              className="flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-blue-600 transition-all hover:scale-105"
+              title="Compartir documento"
             >
               <Share2 className="w-5 h-5" />
             </button>
 
             {/* Tiempo de lectura */}
-            <div className="flex items-center gap-1.5 text-sm text-gray-500">
+            <div className="flex items-center gap-1.5 text-sm text-gray-500" title="Tiempo de lectura estimado">
               <Clock className="w-4 h-4" />
               <span>{minutos} min</span>
             </div>
@@ -242,18 +255,19 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
             href={documento.url_dof}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-full transition-all hover:scale-105 shadow-md hover:shadow-lg"
+            className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-full transition-all hover:scale-105 shadow-md hover:shadow-lg"
+            title="Abrir documento en el DOF"
           >
             Ver
             <ExternalLink className="w-4 h-4" />
           </a>
         </div>
 
-        {/* Botón de expandir/colapsar */}
-        {!expanded && (
+        {/* Botón de expandir solo si no está expandido */}
+        {!expanded && documento.resumen_ia && documento.resumen_ia.split(' ').length > 30 && (
           <button
             onClick={() => setExpanded(true)}
-            className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-semibold"
+            className="mt-3 text-sm text-blue-600 hover:text-blue-700 font-semibold transition-colors"
           >
             Leer más →
           </button>
@@ -268,19 +282,20 @@ export function DocumentCardSkeleton() {
   return (
     <div className="relative bg-white rounded-2xl shadow-sm overflow-hidden mb-5 animate-pulse">
       {/* Skeleton de imagen con overlay */}
-      <div className="w-full aspect-square bg-gray-200 relative">
+      <div className="w-full aspect-[4/3] bg-gray-200 relative">
         <div className="absolute inset-0 flex flex-col items-center justify-center p-8">
-          <div className="w-32 h-32 bg-gray-300 rounded-full mb-6"></div>
-          <div className="h-8 w-64 bg-gray-300 rounded mb-4"></div>
-          <div className="h-6 w-48 bg-gray-300 rounded mb-4"></div>
-          <div className="w-32 h-0.5 bg-gray-300 mb-4"></div>
-          <div className="h-4 w-40 bg-gray-300 rounded"></div>
+          <div className="w-20 h-20 bg-gray-300 rounded-full mb-4"></div>
+          <div className="h-6 w-56 bg-gray-300 rounded mb-3"></div>
+          <div className="h-5 w-40 bg-gray-300 rounded mb-3"></div>
+          <div className="w-20 h-0.5 bg-gray-300 mb-3"></div>
+          <div className="h-4 w-36 bg-gray-300 rounded"></div>
         </div>
       </div>
       
-      <div className="p-6">
+      <div className="p-5">
         {/* Título */}
         <div className="space-y-2 mb-3">
+          <div className="h-5 w-full bg-gray-200 rounded"></div>
           <div className="h-5 w-full bg-gray-200 rounded"></div>
           <div className="h-5 w-3/4 bg-gray-200 rounded"></div>
         </div>
@@ -292,16 +307,17 @@ export function DocumentCardSkeleton() {
         </div>
 
         {/* Separador */}
-        <div className="border-t border-gray-100 mb-3"></div>
+        <div className="border-t border-gray-100 mb-4"></div>
 
         {/* Acciones */}
         <div className="flex items-center justify-between">
-          <div className="flex gap-4">
+          <div className="flex gap-5">
+            <div className="h-5 w-12 bg-gray-200 rounded"></div>
             <div className="h-5 w-12 bg-gray-200 rounded"></div>
             <div className="h-5 w-12 bg-gray-200 rounded"></div>
             <div className="h-5 w-16 bg-gray-200 rounded"></div>
           </div>
-          <div className="h-9 w-24 bg-gray-200 rounded-full"></div>
+          <div className="h-10 w-24 bg-gray-200 rounded-full"></div>
         </div>
       </div>
 

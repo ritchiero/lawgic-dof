@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { DocumentCard, DocumentCardSkeleton } from '@/components/DocumentCardWithImageOverlay';
 import { AREAS_35 } from '@/lib/areas';
 import { Newspaper, Search, Filter, Bookmark, Mail, X, Check } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 // Forzar renderizado dinámico (no SSG)
 export const dynamic = 'force-dynamic';
@@ -20,6 +19,26 @@ interface Documento {
   url_dof: string;
 }
 
+// Agrupar áreas por categoría para mejor UX
+const AREA_GROUPS = [
+  {
+    name: 'Alta Demanda',
+    areas: ['fiscal', 'corporativo', 'laboral', 'penal', 'civil', 'mercantil']
+  },
+  {
+    name: 'Regulatorio',
+    areas: ['administrativo', 'constitucional', 'bancario', 'ambiental', 'competencia', 'comercio-exterior']
+  },
+  {
+    name: 'Sectores Específicos',
+    areas: ['energia', 'salud', 'bursatil', 'seguros', 'telecomunicaciones', 'tecnologia']
+  },
+  {
+    name: 'Otros',
+    areas: ['inmobiliario', 'familia', 'propiedad-intelectual', 'procesal', 'notarial', 'agrario', 'consumidor', 'migratorio', 'electoral', 'transporte', 'maritimo', 'construccion', 'compliance', 'sucesorio', 'medios', 'ciberseguridad', 'internacional']
+  }
+];
+
 export default function FeedPage() {
   const [documentos, setDocumentos] = useState<Documento[]>([]);
   const [loading, setLoading] = useState(false);
@@ -31,8 +50,10 @@ export default function FeedPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
+  const [filterSearch, setFilterSearch] = useState('');
   
   const observerTarget = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   // Cargar documentos
   const fetchDocumentos = useCallback(async (reset = false) => {
@@ -104,6 +125,18 @@ export default function FeedPage() {
     }
   }, []);
 
+  // Cerrar modal con Escape
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showFilters) {
+        setShowFilters(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [showFilters]);
+
   // Guardar/desguardar documento
   const handleSave = (id: string) => {
     const newSaved = new Set(savedDocs);
@@ -147,6 +180,20 @@ export default function FeedPage() {
     );
   };
 
+  // Filtrar áreas por búsqueda
+  const filteredAreas = AREAS_35.filter(area => 
+    area.nombre.toLowerCase().includes(filterSearch.toLowerCase()) ||
+    area.codigo.toLowerCase().includes(filterSearch.toLowerCase())
+  );
+
+  // Agrupar áreas filtradas
+  const groupedFilteredAreas = AREA_GROUPS.map(group => ({
+    ...group,
+    areas: group.areas
+      .map(codigo => AREAS_35.find(a => a.codigo === codigo))
+      .filter(area => area && filteredAreas.includes(area))
+  })).filter(group => group.areas.length > 0);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-gray-50/50">
       {/* Header fijo */}
@@ -169,13 +216,14 @@ export default function FeedPage() {
                   ? 'bg-red-600 text-white'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
+              title={showSavedOnly ? 'Ver todos los documentos' : 'Ver solo documentos guardados'}
             >
               <Bookmark className="w-4 h-4" />
-              {showSavedOnly ? 'Guardados' : 'Ver guardados'}
+              {showSavedOnly ? `Guardados (${savedDocs.size})` : 'Ver guardados'}
             </button>
           </div>
 
-          {/* Barra de búsqueda */}
+          {/* Barra de búsqueda con feedback */}
           <div className="relative mb-3">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
@@ -183,64 +231,165 @@ export default function FeedPage() {
               placeholder="Buscar documentos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-none focus:border-blue-600 focus:outline-none text-sm"
+              className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-blue-600 focus:outline-none text-sm transition-colors"
             />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                title="Limpiar búsqueda"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
-          {/* Botón de filtros */}
+          {/* Feedback de búsqueda activa */}
+          {searchQuery && (
+            <div className="mb-3 text-sm text-gray-600 bg-blue-50 px-3 py-2 rounded-lg">
+              Mostrando resultados para: <span className="font-semibold">&quot;{searchQuery}&quot;</span>
+            </div>
+          )}
+
+          {/* Botón de filtros con indicador mejorado */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-full text-sm font-medium transition-colors"
+            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              selectedAreas.length > 0
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
           >
             <Filter className="w-4 h-4" />
             Filtros {selectedAreas.length > 0 && `(${selectedAreas.length})`}
           </button>
-
-          {/* Panel de filtros */}
-          {showFilters && (
-            <div className="mt-3 p-4 bg-gray-50 border-2 border-dashed border-gray-300 rounded-none">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3">Áreas de Práctica</h3>
-              <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
-                {AREAS_35.map(area => (
-                  <button
-                    key={area.codigo}
-                    onClick={() => toggleArea(area.codigo)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      selectedAreas.includes(area.codigo)
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white text-gray-700 border border-gray-300 hover:border-blue-600'
-                    }`}
-                  >
-                    {area.emoji} {area.nombre}
-                  </button>
-                ))}
-              </div>
-              {selectedAreas.length > 0 && (
-                <button
-                  onClick={() => setSelectedAreas([])}
-                  className="mt-3 text-xs text-blue-600 hover:text-blue-700 font-medium"
-                >
-                  Limpiar filtros
-                </button>
-              )}
-            </div>
-          )}
         </div>
       </header>
 
-      {/* Banner CTA */}
+      {/* Modal de filtros mejorado */}
+      {showFilters && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowFilters(false);
+            }
+          }}
+        >
+          <div 
+            ref={modalRef}
+            className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header del modal */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Filtrar por Áreas</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  {selectedAreas.length === 0 
+                    ? 'Selecciona las áreas de tu interés'
+                    : `${selectedAreas.length} área${selectedAreas.length !== 1 ? 's' : ''} seleccionada${selectedAreas.length !== 1 ? 's' : ''}`
+                  }
+                </p>
+              </div>
+              <button
+                onClick={() => setShowFilters(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                title="Cerrar (Esc)"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Búsqueda de áreas */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Buscar área..."
+                  value={filterSearch}
+                  onChange={(e) => setFilterSearch(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:border-blue-600 focus:outline-none text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Contenido scrolleable */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {groupedFilteredAreas.map((group, idx) => (
+                <div key={idx} className="mb-6 last:mb-0">
+                  <h3 className="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">
+                    {group.name}
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {group.areas.map(area => area && (
+                      <button
+                        key={area.codigo}
+                        onClick={() => toggleArea(area.codigo)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                          selectedAreas.includes(area.codigo)
+                            ? 'bg-blue-600 text-white shadow-md scale-105'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:scale-105'
+                        }`}
+                      >
+                        {selectedAreas.includes(area.codigo) && (
+                          <Check className="w-4 h-4" />
+                        )}
+                        <span>{area.emoji}</span>
+                        <span>{area.nombre}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              {filteredAreas.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  <p className="text-sm">No se encontraron áreas</p>
+                  <button
+                    onClick={() => setFilterSearch('')}
+                    className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Limpiar búsqueda
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Footer del modal */}
+            <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setSelectedAreas([])}
+                className="text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                disabled={selectedAreas.length === 0}
+              >
+                Limpiar todo
+              </button>
+              <button
+                onClick={() => setShowFilters(false)}
+                className="px-6 py-2.5 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+              >
+                Aplicar filtros
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Banner CTA más compacto */}
       {showBanner && (
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-          <div className="max-w-3xl mx-auto px-4 py-4">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white border-b border-blue-700">
+          <div className="max-w-3xl mx-auto px-4 py-3">
             <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 flex-1">
-                <Mail className="w-6 h-6 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="font-semibold text-sm md:text-base">¿Te gusta lo que ves?</p>
-                  <p className="text-xs md:text-sm text-blue-100">Recibe estas alertas por email 2 veces al día • 7 días gratis</p>
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <Mail className="w-5 h-5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm truncate">¿Te gusta lo que ves?</p>
+                  <p className="text-xs text-blue-100 truncate">Recibe alertas por email • 7 días gratis</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <a
                   href="/onboarding"
                   className="px-4 py-2 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition text-sm whitespace-nowrap"
@@ -251,6 +400,7 @@ export default function FeedPage() {
                   onClick={() => setShowBanner(false)}
                   className="p-2 hover:bg-white/10 rounded-lg transition"
                   aria-label="Cerrar"
+                  title="Cerrar banner"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -262,11 +412,16 @@ export default function FeedPage() {
 
       {/* Feed de documentos */}
       <main className="max-w-3xl mx-auto px-4 py-6">
-        {/* Contador */}
+        {/* Contador mejorado */}
         {!loading && documentos.length > 0 && (
-          <div className="mb-4 text-sm text-gray-600">
-            Mostrando {documentos.length} documento{documentos.length !== 1 ? 's' : ''}
-            {selectedAreas.length > 0 && ` en ${selectedAreas.length} área${selectedAreas.length !== 1 ? 's' : ''}`}
+          <div className="mb-5 text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-lg">
+            Mostrando <span className="font-semibold">{documentos.length}</span> documento{documentos.length !== 1 ? 's' : ''}
+            {selectedAreas.length > 0 && (
+              <> en <span className="font-semibold">{selectedAreas.length}</span> área{selectedAreas.length !== 1 ? 's' : ''}</>
+            )}
+            {searchQuery && (
+              <> para <span className="font-semibold">&quot;{searchQuery}&quot;</span></>
+            )}
           </div>
         )}
 
@@ -295,6 +450,16 @@ export default function FeedPage() {
         {/* Observer target para infinite scroll */}
         <div ref={observerTarget} className="h-10" />
 
+        {/* Indicador de carga */}
+        {loading && hasMore && documentos.length > 0 && (
+          <div className="text-center py-4">
+            <div className="inline-flex items-center gap-2 text-sm text-gray-500">
+              <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+              Cargando más documentos...
+            </div>
+          </div>
+        )}
+
         {/* Mensaje de fin */}
         {!loading && !hasMore && documentos.length > 0 && (
           <div className="text-center py-8 text-gray-500">
@@ -303,31 +468,32 @@ export default function FeedPage() {
           </div>
         )}
 
-        {/* Mensaje de sin resultados */}
+        {/* Mensaje de sin resultados mejorado */}
         {!loading && documentos.length === 0 && (
-          <div className="text-center py-16">
+          <div className="text-center py-16 bg-white rounded-2xl shadow-sm">
             <div className="text-6xl mb-4">📄</div>
             <h3 className="text-xl font-serif font-bold text-gray-900 mb-2">
               No se encontraron documentos
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-gray-600 mb-6 max-w-md mx-auto">
               {searchQuery
-                ? 'Intenta con otros términos de búsqueda'
+                ? `No hay resultados para "${searchQuery}". Intenta con otros términos.`
                 : selectedAreas.length > 0
-                ? 'No hay documentos para las áreas seleccionadas'
+                ? 'No hay documentos para las áreas seleccionadas. Intenta con otras áreas.'
                 : showSavedOnly
-                ? 'No has guardado ningún documento aún'
-                : 'No hay documentos disponibles'}
+                ? 'No has guardado ningún documento aún. Explora el feed y guarda los que te interesen.'
+                : 'No hay documentos disponibles en este momento.'}
             </p>
             {(searchQuery || selectedAreas.length > 0) && (
               <button
                 onClick={() => {
                   setSearchQuery('');
                   setSelectedAreas([]);
+                  setShowSavedOnly(false);
                 }}
-                className="px-6 py-2 bg-blue-600 text-white rounded-none font-medium hover:bg-blue-700 transition-colors"
+                className="px-6 py-3 bg-blue-600 text-white rounded-full font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
               >
-                Limpiar filtros
+                Limpiar todos los filtros
               </button>
             )}
           </div>
