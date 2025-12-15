@@ -308,21 +308,30 @@ export default function FeedPage() {
 
       {/* Modal de filtros */}
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
-        <DialogContent className="max-w-5xl max-h-[85vh] p-0 gap-0 overflow-hidden bg-gray-50/50">
+        <DialogContent className="w-[95vw] !max-w-5xl max-h-[85vh] p-0 gap-0 overflow-hidden bg-gray-50/50 rounded-2xl">
           {/* Header */}
-          <div className="px-6 py-4 border-b bg-white">
-            <DialogTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-              <Filter className="w-5 h-5 text-blue-600" />
-              Filtrar por Área de Práctica
-            </DialogTitle>
-            <p className="text-sm text-gray-500 mt-1">
-              Selecciona las áreas legales para personalizar tu feed
-            </p>
+          <div className="px-6 py-4 border-b bg-white flex justify-between items-center">
+            <div>
+              <DialogTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <Filter className="w-5 h-5 text-blue-600" />
+                Filtrar por Área de Práctica
+              </DialogTitle>
+              <p className="text-sm text-gray-500 mt-1">
+                Selecciona las áreas legales para personalizar tu feed
+              </p>
+            </div>
+            {/* Close button for convenience */}
+            <button 
+              onClick={() => setShowFilters(false)}
+              className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+            >
+              <X className="w-4 h-4 text-gray-500" />
+            </button>
           </div>
           
           {/* Content con scroll */}
-          <div className="flex-1 overflow-y-auto p-6" style={{ maxHeight: 'calc(85vh - 140px)' }}>
-            <div className="space-y-8">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6" style={{ maxHeight: 'calc(85vh - 130px)' }}>
+            <div className="space-y-6">
               {(['alta', 'media', 'especializada'] as const).map((cat) => {
                 const areas = AREAS_35.filter(a => a.categoria === cat);
                 if (areas.length === 0) return null;
@@ -335,7 +344,7 @@ export default function FeedPage() {
 
                 return (
                   <div key={cat}>
-                    <div className="flex items-baseline justify-between mb-4 px-1">
+                    <div className="flex items-baseline justify-between mb-3 px-1">
                       <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide flex items-center gap-2">
                         {catInfo.title}
                         <span className="text-xs font-normal text-gray-500 normal-case bg-gray-200 px-2 py-0.5 rounded-full">
@@ -344,43 +353,33 @@ export default function FeedPage() {
                       </h3>
                     </div>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
                       {areas.map(area => {
                         const isSelected = selectedAreas.includes(area.codigo);
                         return (
                           <button
                             key={area.codigo}
                             onClick={() => toggleArea(area.codigo)}
-                            className={`group relative flex flex-col p-3 rounded-xl border transition-all duration-200 text-left h-full hover:shadow-md ${
+                            className={`group relative flex items-center gap-3 p-2.5 rounded-lg border transition-all duration-200 text-left hover:shadow-sm ${
                               isSelected
                                 ? 'bg-blue-50 border-blue-500 shadow-sm ring-1 ring-blue-500'
                                 : 'bg-white border-gray-200 hover:border-blue-400'
                             }`}
                           >
-                            <div className="flex items-start justify-between w-full mb-2">
-                              <span className="text-2xl bg-gray-50 p-1.5 rounded-lg group-hover:scale-110 transition-transform">
-                                {area.emoji}
-                              </span>
-                              <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
-                                isSelected 
-                                  ? 'bg-blue-600 border-blue-600' 
-                                  : 'border-gray-300 group-hover:border-blue-400 bg-white'
-                              }`}>
-                                {isSelected && <Check className="w-3 h-3 text-white" />}
-                              </div>
-                            </div>
-                            
-                            <span className={`text-sm font-bold leading-tight mb-1 ${
-                              isSelected ? 'text-blue-900' : 'text-gray-900'
-                            }`}>
-                              {area.nombre}
+                            <span className="text-xl bg-gray-50 w-8 h-8 flex items-center justify-center rounded-md group-hover:scale-105 transition-transform flex-shrink-0">
+                              {area.emoji}
                             </span>
                             
-                            <p className={`text-xs leading-relaxed line-clamp-2 ${
-                              isSelected ? 'text-blue-700/80' : 'text-gray-500'
-                            }`}>
-                              {area.descripcion}
-                            </p>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2">
+                                <span className={`text-xs font-bold leading-tight truncate ${
+                                  isSelected ? 'text-blue-900' : 'text-gray-900'
+                                }`}>
+                                  {area.nombre}
+                                </span>
+                                {isSelected && <Check className="w-3 h-3 text-blue-600 flex-shrink-0" />}
+                              </div>
+                            </div>
                           </button>
                         );
                       })}
@@ -398,19 +397,19 @@ export default function FeedPage() {
                 <button
                   onClick={() => setSelectedAreas([])}
                   disabled={selectedAreas.length === 0}
-                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2 text-xs font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Limpiar selección
                 </button>
-                <span className="text-sm text-gray-400">|</span>
-                <span className="text-sm text-gray-500">
+                <span className="text-gray-300">|</span>
+                <span className="text-xs text-gray-500">
                   {selectedAreas.length} seleccionada{selectedAreas.length !== 1 ? 's' : ''}
                 </span>
               </div>
               
               <button
                 onClick={() => setShowFilters(false)}
-                className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow transition-all transform active:scale-95"
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow transition-all transform active:scale-95"
               >
                 Ver Documentos
               </button>
