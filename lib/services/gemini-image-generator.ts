@@ -82,6 +82,7 @@ export interface GenerateImageResult {
   imageBase64?: string;
   error?: string;
   prompt?: string;
+    model?: string;
 }
 
 /**
