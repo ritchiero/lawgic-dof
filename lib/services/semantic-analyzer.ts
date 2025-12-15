@@ -176,19 +176,42 @@ export function analyzeTitle(titulo: string): SemanticAnalysisResult {
 }
 
 /**
- * Genera un prompt optimizado para DALL-E 3 basado en el análisis semántico
+ * Genera un prompt completo para DALL-E 3 con fondo fotográfico + texto overlay
  */
-export function generatePhotoPrompt(titulo: string, categoria?: string): string {
+export function generateCompleteImagePrompt(
+  titulo: string,
+  resumen: string,
+  fecha: string,
+  categoria?: string
+): string {
   const analysis = analyzeTitle(titulo);
   
-  // Agregar contexto de categoría si está disponible
-  let categoryContext = '';
-  if (categoria) {
-    categoryContext = ` Related to ${categoria} law in Mexico.`;
-  }
+  // Truncar título si es muy largo (máximo 150 caracteres)
+  const tituloTruncado = titulo.length > 150 ? titulo.substring(0, 147) + '...' : titulo;
   
-  // Construir prompt final
-  const prompt = `${analysis.photoDescription}${categoryContext} High quality, professional photography, sharp focus, natural lighting, realistic, no text, no logos overlaid, clean composition, suitable as background image for legal document card.`;
+  // Truncar resumen (máximo 200 caracteres)
+  const resumenTruncado = resumen.length > 200 ? resumen.substring(0, 197) + '...' : resumen;
+  
+  // Construir prompt completo con instrucciones de texto
+  const prompt = `Create a professional social media card image with the following elements:
+
+BACKGROUND:
+${analysis.photoDescription}
+
+TEXT OVERLAY (must be in Spanish, exact text as provided):
+1. Category badge (top-left, blue background, white text, uppercase): "${(categoria || 'DOCUMENTO').toUpperCase()}"
+2. Main title (large, bold, white text, 3-4 lines max): "${tituloTruncado}"
+3. Subtitle/description (medium, white text, 2 lines max): "${resumenTruncado}"
+4. Date info (bottom-left, small, light gray text): "📅 ${fecha}  •  ⏱️ 1 min"
+
+DESIGN REQUIREMENTS:
+- Image size: 1792x1024px (landscape)
+- Dark gradient overlay on bottom half for text readability
+- Professional, clean layout
+- High contrast between text and background
+- Text must be perfectly legible and spelled correctly in Spanish
+- Modern, institutional design aesthetic
+- No additional logos or watermarks`;
   
   return prompt;
 }
