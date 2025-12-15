@@ -51,9 +51,12 @@ export default function FeedPage() {
   const [showSavedOnly, setShowSavedOnly] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
   const [filterSearch, setFilterSearch] = useState('');
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   
   const observerTarget = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
 
   // Cargar documentos
   const fetchDocumentos = useCallback(async (reset = false) => {
@@ -137,6 +140,34 @@ export default function FeedPage() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [showFilters]);
 
+  // Ocultar/mostrar header al hacer scroll (estilo Instagram)
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Solo ocultar si scrolleamos más de 100px
+      if (currentScrollY < 100) {
+        setShowHeader(true);
+        setLastScrollY(currentScrollY);
+        return;
+      }
+      
+      // Scroll hacia abajo: ocultar header
+      if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setShowHeader(false);
+      }
+      // Scroll hacia arriba: mostrar header
+      else if (currentScrollY < lastScrollY) {
+        setShowHeader(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
+
   // Guardar/desguardar documento
   const handleSave = (id: string) => {
     const newSaved = new Set(savedDocs);
@@ -196,8 +227,13 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-gray-50/50">
-      {/* Header fijo */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/90 shadow-sm border-b border-gray-200/50">
+      {/* Header fijo con animación de ocultar/mostrar */}
+      <header 
+        ref={headerRef}
+        className={`sticky z-50 backdrop-blur-md bg-white/90 shadow-sm border-b border-gray-200/50 transition-transform duration-300 ease-in-out ${
+          showHeader ? 'top-0 translate-y-0' : '-translate-y-full'
+        }`}
+      >
         <div className="max-w-3xl mx-auto px-4 py-4">
           {/* Logo y título */}
           <div className="flex items-center justify-between mb-4">
