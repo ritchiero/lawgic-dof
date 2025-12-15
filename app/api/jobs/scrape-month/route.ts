@@ -105,14 +105,14 @@ export async function POST(request: NextRequest) {
             ? resultado.areas[0] 
             : 'administrativo';
           
-          const { buffer, isGenerated } = await generateImageWithFallback({
+          const { buffer, usedFallback } = await generateImageWithFallback({
             categoria: categoriaPrincipal,
             titulo: doc.titulo,
             tipo: doc.tipo_documento || 'Documento',
             documentoId: docSnapshot.id,
           });
           
-          if (buffer && isGenerated) {
+          if (buffer && !usedFallback) {
             const imageResult = await generateAndUploadDocumentImage({
               documentId: docSnapshot.id,
               titulo: doc.titulo,
