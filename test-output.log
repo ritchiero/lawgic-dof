@@ -1,0 +1,23 @@
+/home/ubuntu/lawgic-dof/node_modules/.pnpm/firebase-admin@13.6.0/node_modules/firebase-admin/lib/app/credential-internal.js:174
+            throw new error_1.FirebaseAppError(error_1.AppErrorCodes.INVALID_CREDENTIAL, errorMessage);
+                  ^
+
+FirebaseAppError: Service account object must contain a string "project_id" property.
+    at new ServiceAccount (/home/ubuntu/lawgic-dof/node_modules/.pnpm/firebase-admin@13.6.0/node_modules/firebase-admin/lib/app/credential-internal.js:174:19)
+    at new ServiceAccountCredential (/home/ubuntu/lawgic-dof/node_modules/.pnpm/firebase-admin@13.6.0/node_modules/firebase-admin/lib/app/credential-internal.js:118:15)
+    at cert (/home/ubuntu/lawgic-dof/node_modules/.pnpm/firebase-admin@13.6.0/node_modules/firebase-admin/lib/app/credential-factory.js:105:54)
+    at <anonymous> (/home/ubuntu/lawgic-dof/scripts/test-10-images.ts:20:15)
+    at Object.<anonymous> (/home/ubuntu/lawgic-dof/scripts/test-10-images.ts:171:27)
+    at Module._compile (node:internal/modules/cjs/loader:1562:14)
+    at Object.transformer (/home/ubuntu/lawgic-dof/node_modules/.pnpm/tsx@4.21.0/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1313:32)
+    at Function._load (node:internal/modules/cjs/loader:1123:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14) {
+  errorInfo: {
+    code: 'app/invalid-credential',
+    message: 'Service account object must contain a string "project_id" property.'
+  },
+  codePrefix: 'app'
+}
+
+Node.js v22.13.0

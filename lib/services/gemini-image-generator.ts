@@ -287,12 +287,137 @@ export async function generateDocumentImage(
     };
 
   } catch (error) {
-    console.error('❌ Error generando imagen con Gemini 3 Pro Image:', error);
+    console.error('❌ Error generando imagen con Gemini:', error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Error desconocido',
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
+}
+
+/**
+ * Genera imagen usando Imagen 3 como fallback
+ * Modelo más económico y disponible públicamente
+ */
+async function generateWithImagen3(params: ImageGenerationParams): Promise<ImageGenerationResult> {
+  try {
+    console.log('🎨 Intentando generar con Imagen 3...');
+
+    // Obtener access token
+    const accessToken = await getAccessToken();
+
+    // Construir URL de Vertex AI para Imagen 3
+    const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
+    const location = 'us-central1'; // Imagen 3 está disponible en regiones específicas
+    const model = 'imagen-3.0-generate-001';
+    const url = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:predict`;
+
+    // Construir prompt simplificado para Imagen 3
+    const category = params.areas_detectadas?.[0] || 'administrativo';
+    const colors = CATEGORY_COLORS[category] || CATEGORY_COLORS.administrativo;
+
+    const prompt = `Create a modern social media post image with:
+- Vibrant gradient background (${colors.description})
+- Glassmorphism card with frosted glass effect
+- Bold headline text: "${params.social_headline || params.titulo.substring(0, 80)}"
+- Tagline: "${params.social_tagline || ''}"
+- Impact data: "${params.social_impact_data || ''}"
+- DOF logo and date: ${new Date(params.fecha_publicacion).toLocaleDateString('es-MX')}
+- Professional legal document aesthetic
+- High contrast, readable typography`;
+
+    // Request body para Imagen 3
+    const requestBody = {
+      instances: [
+        {
+          prompt: prompt,
+        }
+      ],
+      parameters: {
+        sampleCount: 1,
+        aspectRatio: '1:1',
+        safetySetting: 'block_some',
+        personGeneration: 'dont_allow',
+      }
+    };
+
+    console.log('📤 Enviando request a Imagen 3...');
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Imagen 3 API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ Respuesta recibida de Imagen 3');
+
+    // Extraer imagen base64
+    const imageBase64 = data.predictions?.[0]?.bytesBase64Encoded;
+
+    if (!imageBase64) {
+      throw new Error('No se recibió imagen en la respuesta de Imagen 3');
+    }
+
+    console.log('✅ Imagen generada exitosamente con Imagen 3');
+
+    return {
+      success: true,
+      imageBase64,
+      model: 'imagen-3',
+    };
+
+  } catch (error) {
+    console.error('❌ Error generando imagen con Imagen 3:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Genera imagen con fallback automático:
+ * 1. Intenta Gemini 3 Pro Image primero
+ * 2. Si falla (429 o cualquier error), usa Imagen 3
+ */
+export async function generateDocumentImageWithFallback(params: ImageGenerationParams): Promise<ImageGenerationResult> {
+  console.log('🎯 Iniciando generación con fallback automático...');
+
+  // Intentar primero con Gemini 3 Pro Image
+  const geminiResult = await generateDocumentImage(params);
+
+  if (geminiResult.success) {
+    console.log('✅ Éxito con Gemini 3 Pro Image');
+    return {
+      ...geminiResult,
+      model: 'gemini-3-pro-image',
+    };
+  }
+
+  // Si Gemini falla, intentar con Imagen 3
+  console.log('⚠️  Gemini falló, intentando con Imagen 3...');
+  const imagen3Result = await generateWithImagen3(params);
+
+  if (imagen3Result.success) {
+    console.log('✅ Éxito con Imagen 3 (fallback)');
+    return imagen3Result;
+  }
+
+  // Si ambos fallan, retornar el error
+  console.log('❌ Ambos modelos fallaron');
+  return {
+    success: false,
+    error: `Gemini error: ${geminiResult.error}; Imagen 3 error: ${imagen3Result.error}`,
+  };
 }
 
 /**
