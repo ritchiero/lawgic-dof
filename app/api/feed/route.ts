@@ -44,6 +44,9 @@ export async function GET(request: NextRequest) {
           tipo_documento: data.tipo_documento || 'Documento',
           edicion: data.edicion || 'Matutina',
           url_dof: data.url_dof || '',
+          image_url: data.image_url || '',
+          social_headline: data.social_headline || '',
+          social_tagline: data.social_tagline || '',
         };
       });
 
