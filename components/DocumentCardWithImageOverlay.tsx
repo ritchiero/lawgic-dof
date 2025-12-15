@@ -69,8 +69,9 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
   const primaryArea = areasInfo[0];
   const categoryColors = CATEGORY_COLORS[primaryArea?.codigo] || CATEGORY_COLORS.default;
   
-  // Obtener imagen de fondo de la categoría
-  const categoryImage = CATEGORY_IMAGES[primaryArea?.codigo] || CATEGORY_IMAGES.default;
+  // Obtener imagen de fondo de la categoría o imagen generada con IA
+  const categoryImage = documento.image_url || CATEGORY_IMAGES[primaryArea?.codigo] || CATEGORY_IMAGES.default;
+  const hasAIImage = !!documento.image_url;
 
   // Calcular tiempo de lectura
   const palabras = documento.resumen_ia?.split(' ').length || 0;
@@ -123,7 +124,7 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
         {!imageError && (
           <Image
             src={categoryImage}
-            alt={primaryArea?.nombre || 'Documento'}
+            alt={documento.social_headline || primaryArea?.nombre || 'Documento'}
             width={1024}
             height={1024}
             className="w-full h-full object-cover"
@@ -137,11 +138,13 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200"></div>
         )}
 
-        {/* Overlay semi-transparente para mejorar contraste */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20"></div>
-
-        {/* Text Overlay */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+        {/* Overlay semi-transparente para mejorar contraste (solo para imágenes estáticas) */}
+        {!hasAIImage && (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20"></div>
+            
+            {/* Text Overlay (solo para imágenes estáticas) */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
           {/* Emoji más pequeño */}
           <div className="text-5xl mb-2 drop-shadow-lg filter brightness-110">
             {primaryArea?.emoji || '📄'}
@@ -167,7 +170,9 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
               month: 'short' 
             }).toUpperCase()} • {documento.tipo_documento || 'Documento'}
           </p>
-        </div>
+            </div>
+          </>
+        )}
 
         {/* Badges de nuevo/importante */}
         <div className="absolute top-4 right-4 flex gap-2 z-10">
@@ -191,9 +196,9 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
         <h4 
           className="font-serif font-bold text-base leading-tight mb-3 text-gray-900 cursor-pointer hover:text-blue-600 transition-colors line-clamp-3"
           onClick={() => setExpanded(!expanded)}
-          title={documento.titulo}
+          title={documento.social_headline || documento.titulo}
         >
-          {documento.titulo}
+          {documento.social_headline || documento.titulo}
         </h4>
 
         {/* Resumen */}
