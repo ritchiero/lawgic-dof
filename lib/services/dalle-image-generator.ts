@@ -7,9 +7,16 @@
 import OpenAI from 'openai';
 import { generateSocialCopy, generateImagePrompt, type SocialCopy } from './social-copywriter';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openaiClient: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openaiClient;
+}
 
 /**
  * Genera una imagen con DALL-E 3 usando copy social atractivo
@@ -49,7 +56,7 @@ NO TEXT - background only for text overlay.`;
     console.log(`[DALL-E 3] Prompt: ${prompt.substring(0, 150)}...`);
     
     // Generar imagen con DALL-E 3
-    const response = await openai.images.generate({
+    const response = await getOpenAI().images.generate({
       model: 'dall-e-3',
       prompt: prompt,
       n: 1,

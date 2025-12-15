@@ -4,9 +4,16 @@
 
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+let openaiClient: OpenAI | null = null;
+
+function getOpenAI(): OpenAI {
+  if (!openaiClient) {
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return openaiClient;
+}
 
 export interface SocialCopy {
   headline: string;
@@ -71,7 +78,7 @@ Responde ÚNICAMENTE con un JSON válido con esta estructura:
   "visualConcept": "descripción breve del concepto visual (ej: 'dinero y cultura', 'carretera y conexión', 'documentos y costos')"
 }`;
 
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAI().chat.completions.create({
       model: 'gpt-4.1-mini',
       messages: [
         {
