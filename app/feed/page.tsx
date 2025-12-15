@@ -308,18 +308,20 @@ export default function FeedPage() {
 
       {/* Modal de filtros */}
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
-        <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
-          <DialogHeader>
+        <DialogContent className="max-w-4xl max-h-[85vh] p-0 gap-0 overflow-hidden">
+          {/* Header */}
+          <div className="px-6 pt-6 pb-4 border-b">
             <DialogTitle className="text-xl font-bold text-gray-900">
               Filtrar por Área de Práctica
             </DialogTitle>
             <p className="text-sm text-gray-500 mt-1">
               Selecciona las áreas de tu interés para filtrar los documentos
             </p>
-          </DialogHeader>
+          </div>
           
-          <div className="flex-1 overflow-y-auto px-6 py-4">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+          {/* Content con scroll */}
+          <div className="flex-1 overflow-y-auto px-6 py-4" style={{ maxHeight: 'calc(85vh - 180px)' }}>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 pb-4">
               {AREAS_ARRAY.map(area => {
                 const isSelected = selectedAreas.includes(area.codigo);
                 return (
@@ -347,7 +349,8 @@ export default function FeedPage() {
             </div>
           </div>
           
-          <div className="sticky bottom-0 bg-white border-t pt-4 px-6 pb-4">
+          {/* Footer sticky */}
+          <div className="bg-white border-t px-6 py-4">
             <div className="flex justify-between items-center">
               <button
                 onClick={() => setSelectedAreas([])}
