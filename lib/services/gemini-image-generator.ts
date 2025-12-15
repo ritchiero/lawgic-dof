@@ -236,9 +236,15 @@ export async function generateDocumentImage(
         console.log(`✅ Imagen generada con mime_type: ${output.mime_type}`);
         
         // Convertir base64 a string si es necesario
-        const imageBase64 = typeof output.data === 'string' 
-          ? output.data 
-          : Buffer.from(output.data as ArrayBuffer).toString('base64');
+        let imageBase64: string;
+        if (typeof output.data === 'string') {
+          imageBase64 = output.data;
+        } else if (output.data) {
+          imageBase64 = Buffer.from(output.data as unknown as ArrayBuffer).toString('base64');
+        } else {
+          console.error('❌ output.data es undefined');
+          continue;
+        }
         
         return {
           success: true,
