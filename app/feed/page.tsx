@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { DocumentCard, DocumentCardSkeleton } from '@/components/DocumentCard';
-import { AREAS_ARRAY } from '@/lib/areas';
+import { AREAS_35 } from '@/lib/areas';
 import { Newspaper, Search, Filter, Bookmark, Mail, X, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
@@ -308,62 +308,111 @@ export default function FeedPage() {
 
       {/* Modal de filtros */}
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
-        <DialogContent className="max-w-6xl max-h-[80vh] p-0 gap-0 overflow-hidden">
+        <DialogContent className="max-w-5xl max-h-[85vh] p-0 gap-0 overflow-hidden bg-gray-50/50">
           {/* Header */}
-          <div className="px-5 pt-5 pb-3 border-b">
-            <DialogTitle className="text-lg font-bold text-gray-900">
+          <div className="px-6 py-4 border-b bg-white">
+            <DialogTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              <Filter className="w-5 h-5 text-blue-600" />
               Filtrar por Área de Práctica
             </DialogTitle>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Selecciona las áreas de tu interés
+            <p className="text-sm text-gray-500 mt-1">
+              Selecciona las áreas legales para personalizar tu feed
             </p>
           </div>
           
           {/* Content con scroll */}
-          <div className="flex-1 overflow-y-auto px-5 py-3" style={{ maxHeight: 'calc(80vh - 140px)' }}>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 pb-2">
-              {AREAS_ARRAY.map(area => {
-                const isSelected = selectedAreas.includes(area.codigo);
+          <div className="flex-1 overflow-y-auto p-6" style={{ maxHeight: 'calc(85vh - 140px)' }}>
+            <div className="space-y-8">
+              {(['alta', 'media', 'especializada'] as const).map((cat) => {
+                const areas = AREAS_35.filter(a => a.categoria === cat);
+                if (areas.length === 0) return null;
+                
+                const catInfo = {
+                  alta: { title: 'Áreas Principales', desc: 'Las áreas más consultadas' },
+                  media: { title: 'Áreas Generales', desc: 'Prácticas fundamentales' },
+                  especializada: { title: 'Áreas Especializadas', desc: 'Sectores específicos y nichos' }
+                }[cat];
+
                 return (
-                  <button
-                    key={area.codigo}
-                    onClick={() => toggleArea(area.codigo)}
-                    className={`relative flex items-center gap-1.5 p-2 rounded-md border-2 transition-all text-left min-h-[44px] ${
-                      isSelected
-                        ? 'bg-blue-600 border-blue-600 shadow-sm'
-                        : 'bg-white border-gray-200 hover:border-blue-300'
-                    }`}
-                  >
-                    <span className="text-base flex-shrink-0">{area.emoji}</span>
-                    <span className={`text-sm font-medium flex-1 leading-snug ${
-                      isSelected ? 'text-white' : 'text-gray-700'
-                    }`} style={{ wordBreak: 'break-word', overflowWrap: 'break-word', hyphens: 'auto' }}>
-                      {area.nombre}
-                    </span>
-                    {isSelected && (
-                      <Check className="w-4 h-4 text-white flex-shrink-0" />
-                    )}
-                  </button>
+                  <div key={cat}>
+                    <div className="flex items-baseline justify-between mb-4 px-1">
+                      <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide flex items-center gap-2">
+                        {catInfo.title}
+                        <span className="text-xs font-normal text-gray-500 normal-case bg-gray-200 px-2 py-0.5 rounded-full">
+                          {areas.length}
+                        </span>
+                      </h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+                      {areas.map(area => {
+                        const isSelected = selectedAreas.includes(area.codigo);
+                        return (
+                          <button
+                            key={area.codigo}
+                            onClick={() => toggleArea(area.codigo)}
+                            className={`group relative flex flex-col p-3 rounded-xl border transition-all duration-200 text-left h-full hover:shadow-md ${
+                              isSelected
+                                ? 'bg-blue-50 border-blue-500 shadow-sm ring-1 ring-blue-500'
+                                : 'bg-white border-gray-200 hover:border-blue-400'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between w-full mb-2">
+                              <span className="text-2xl bg-gray-50 p-1.5 rounded-lg group-hover:scale-110 transition-transform">
+                                {area.emoji}
+                              </span>
+                              <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+                                isSelected 
+                                  ? 'bg-blue-600 border-blue-600' 
+                                  : 'border-gray-300 group-hover:border-blue-400 bg-white'
+                              }`}>
+                                {isSelected && <Check className="w-3 h-3 text-white" />}
+                              </div>
+                            </div>
+                            
+                            <span className={`text-sm font-bold leading-tight mb-1 ${
+                              isSelected ? 'text-blue-900' : 'text-gray-900'
+                            }`}>
+                              {area.nombre}
+                            </span>
+                            
+                            <p className={`text-xs leading-relaxed line-clamp-2 ${
+                              isSelected ? 'text-blue-700/80' : 'text-gray-500'
+                            }`}>
+                              {area.descripcion}
+                            </p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 );
               })}
             </div>
           </div>
           
           {/* Footer sticky */}
-          <div className="bg-white border-t px-5 py-3">
-            <div className="flex justify-between items-center">
-              <button
-                onClick={() => setSelectedAreas([])}
-                disabled={selectedAreas.length === 0}
-                className="px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                Limpiar filtros
-              </button>
+          <div className="bg-white border-t px-6 py-4 shadow-lg z-10">
+            <div className="flex justify-between items-center gap-4">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setSelectedAreas([])}
+                  disabled={selectedAreas.length === 0}
+                  className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Limpiar selección
+                </button>
+                <span className="text-sm text-gray-400">|</span>
+                <span className="text-sm text-gray-500">
+                  {selectedAreas.length} seleccionada{selectedAreas.length !== 1 ? 's' : ''}
+                </span>
+              </div>
+              
               <button
                 onClick={() => setShowFilters(false)}
-                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors"
+                className="px-8 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm hover:shadow transition-all transform active:scale-95"
               >
-                Aplicar {selectedAreas.length > 0 && `(${selectedAreas.length})`}
+                Ver Documentos
               </button>
             </div>
           </div>
