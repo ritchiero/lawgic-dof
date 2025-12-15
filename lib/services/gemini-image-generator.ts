@@ -299,7 +299,7 @@ export async function generateDocumentImage(
  * Genera imagen usando Imagen 3 como fallback
  * Modelo más económico y disponible públicamente
  */
-async function generateWithImagen3(params: ImageGenerationParams): Promise<ImageGenerationResult> {
+async function generateWithImagen3(params: GenerateImageParams): Promise<GenerateImageResult> {
   try {
     console.log('🎨 Intentando generar con Imagen 3...');
 
@@ -389,7 +389,7 @@ async function generateWithImagen3(params: ImageGenerationParams): Promise<Image
  * 1. Intenta Gemini 3 Pro Image primero
  * 2. Si falla (429 o cualquier error), usa Imagen 3
  */
-export async function generateDocumentImageWithFallback(params: ImageGenerationParams): Promise<ImageGenerationResult> {
+export async function generateDocumentImageWithFallback(params: GenerateImageParams): Promise<GenerateImageResult> {
   console.log('🎯 Iniciando generación con fallback automático...');
 
   // Intentar primero con Gemini 3 Pro Image
