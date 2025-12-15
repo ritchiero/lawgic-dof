@@ -176,42 +176,24 @@ export function analyzeTitle(titulo: string): SemanticAnalysisResult {
 }
 
 /**
- * Genera un prompt completo para DALL-E 3 con fondo fotográfico + texto overlay
+ * Genera un prompt para DALL-E 3 de SOLO foto de fondo (sin texto)
  */
-export function generateCompleteImagePrompt(
-  titulo: string,
-  resumen: string,
-  fecha: string,
-  categoria?: string
-): string {
+export function generatePhotoBackgroundPrompt(titulo: string, categoria?: string): string {
   const analysis = analyzeTitle(titulo);
   
-  // Truncar título si es muy largo (máximo 150 caracteres)
-  const tituloTruncado = titulo.length > 150 ? titulo.substring(0, 147) + '...' : titulo;
-  
-  // Truncar resumen (máximo 200 caracteres)
-  const resumenTruncado = resumen.length > 200 ? resumen.substring(0, 197) + '...' : resumen;
-  
-  // Construir prompt completo con instrucciones de texto
-  const prompt = `Create a professional social media card image with the following elements:
+  // Construir prompt SOLO para foto de fondo
+  const prompt = `${analysis.photoDescription}
 
-BACKGROUND:
-${analysis.photoDescription}
-
-TEXT OVERLAY (must be in Spanish, exact text as provided):
-1. Category badge (top-left, blue background, white text, uppercase): "${(categoria || 'DOCUMENTO').toUpperCase()}"
-2. Main title (large, bold, white text, 3-4 lines max): "${tituloTruncado}"
-3. Subtitle/description (medium, white text, 2 lines max): "${resumenTruncado}"
-4. Date info (bottom-left, small, light gray text): "📅 ${fecha}  •  ⏱️ 1 min"
-
-DESIGN REQUIREMENTS:
-- Image size: 1792x1024px (landscape)
-- Dark gradient overlay on bottom half for text readability
-- Professional, clean layout
-- High contrast between text and background
-- Text must be perfectly legible and spelled correctly in Spanish
-- Modern, institutional design aesthetic
-- No additional logos or watermarks`;
+IMPORTANT REQUIREMENTS:
+- Professional photograph, high quality
+- Realistic, photographic style (not illustration or graphic design)
+- NO text, NO numbers, NO labels, NO overlays
+- NO logos, NO watermarks, NO graphics
+- Clean, uncluttered composition
+- Suitable as background image for text overlay
+- Natural lighting, professional photography
+- Landscape orientation (1792x1024px)
+- Institutional, formal aesthetic`;
   
   return prompt;
 }
