@@ -227,7 +227,8 @@ export async function generateDocumentImage(
     const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
     const location = 'global'; // Gemini 3 Pro Image solo está disponible en global endpoint
     const model = 'gemini-3-pro-image-preview';
-    const url = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:generateContent`;
+    // Nota: El endpoint global NO usa el prefijo {location}- antes del dominio
+    const url = `https://aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:generateContent`;
 
     // Hacer request a Vertex AI
     const response = await fetch(url, {
