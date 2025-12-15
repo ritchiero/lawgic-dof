@@ -21,9 +21,8 @@ export async function GET() {
   try {
     console.log('🚀 Iniciando prueba de generación de 10 imágenes...');
 
-    // Obtener 10 documentos recientes del DOF sin imagen
+    // Obtener 10 documentos recientes del DOF (con o sin imagen, para testing)
     const docsSnapshot = await db.collection('documentos_dof')
-      .where('imagen_social', '==', null)
       .orderBy('fecha_publicacion', 'desc')
       .limit(10)
       .get();
