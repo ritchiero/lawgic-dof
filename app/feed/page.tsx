@@ -308,40 +308,40 @@ export default function FeedPage() {
 
       {/* Modal de filtros */}
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
-        <DialogContent className="max-w-4xl max-h-[85vh] p-0 gap-0 overflow-hidden">
+        <DialogContent className="max-w-5xl max-h-[90vh] p-0 gap-0 overflow-hidden">
           {/* Header */}
-          <div className="px-6 pt-6 pb-4 border-b">
-            <DialogTitle className="text-xl font-bold text-gray-900">
+          <div className="px-5 pt-5 pb-3 border-b">
+            <DialogTitle className="text-lg font-bold text-gray-900">
               Filtrar por Área de Práctica
             </DialogTitle>
-            <p className="text-sm text-gray-500 mt-1">
-              Selecciona las áreas de tu interés para filtrar los documentos
+            <p className="text-xs text-gray-500 mt-0.5">
+              Selecciona las áreas de tu interés
             </p>
           </div>
           
           {/* Content con scroll */}
-          <div className="flex-1 overflow-y-auto px-6 py-4" style={{ maxHeight: 'calc(85vh - 180px)' }}>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 pb-4">
+          <div className="flex-1 overflow-y-auto px-5 py-3" style={{ maxHeight: 'calc(90vh - 140px)' }}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 pb-2">
               {AREAS_ARRAY.map(area => {
                 const isSelected = selectedAreas.includes(area.codigo);
                 return (
                   <button
                     key={area.codigo}
                     onClick={() => toggleArea(area.codigo)}
-                    className={`relative flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-left ${
+                    className={`relative flex items-center gap-1.5 p-2 rounded-md border-2 transition-all text-left min-h-[44px] ${
                       isSelected
-                        ? 'bg-blue-600 border-blue-600 shadow-md shadow-blue-500/25 scale-[1.02]'
-                        : 'bg-white border-gray-200 hover:border-blue-300 hover:shadow-sm'
+                        ? 'bg-blue-600 border-blue-600 shadow-sm'
+                        : 'bg-white border-gray-200 hover:border-blue-300'
                     }`}
                   >
-                    <span className="text-xl flex-shrink-0">{area.emoji}</span>
-                    <span className={`text-sm font-medium flex-1 ${
+                    <span className="text-base flex-shrink-0">{area.emoji}</span>
+                    <span className={`text-xs font-medium flex-1 leading-tight break-words ${
                       isSelected ? 'text-white' : 'text-gray-700'
                     }`}>
                       {area.nombre}
                     </span>
                     {isSelected && (
-                      <Check className="w-5 h-5 text-white flex-shrink-0" />
+                      <Check className="w-4 h-4 text-white flex-shrink-0" />
                     )}
                   </button>
                 );
@@ -350,18 +350,18 @@ export default function FeedPage() {
           </div>
           
           {/* Footer sticky */}
-          <div className="bg-white border-t px-6 py-4">
+          <div className="bg-white border-t px-5 py-3">
             <div className="flex justify-between items-center">
               <button
                 onClick={() => setSelectedAreas([])}
                 disabled={selectedAreas.length === 0}
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                className="px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 Limpiar filtros
               </button>
               <button
                 onClick={() => setShowFilters(false)}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+                className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors"
               >
                 Aplicar {selectedAreas.length > 0 && `(${selectedAreas.length})`}
               </button>
