@@ -308,7 +308,7 @@ export default function FeedPage() {
 
       {/* Modal de filtros */}
       <Dialog open={showFilters} onOpenChange={setShowFilters}>
-        <DialogContent className="max-w-6xl max-h-[90vh] p-0 gap-0 overflow-hidden">
+        <DialogContent className="max-w-6xl max-h-[80vh] p-0 gap-0 overflow-hidden">
           {/* Header */}
           <div className="px-5 pt-5 pb-3 border-b">
             <DialogTitle className="text-lg font-bold text-gray-900">
@@ -320,7 +320,7 @@ export default function FeedPage() {
           </div>
           
           {/* Content con scroll */}
-          <div className="flex-1 overflow-y-auto px-5 py-3" style={{ maxHeight: 'calc(90vh - 140px)' }}>
+          <div className="flex-1 overflow-y-auto px-5 py-3" style={{ maxHeight: 'calc(80vh - 140px)' }}>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-1.5 pb-2">
               {AREAS_ARRAY.map(area => {
                 const isSelected = selectedAreas.includes(area.codigo);
@@ -335,7 +335,7 @@ export default function FeedPage() {
                     }`}
                   >
                     <span className="text-base flex-shrink-0">{area.emoji}</span>
-                    <span className={`text-xs font-medium flex-1 leading-tight ${
+                    <span className={`text-sm font-medium flex-1 leading-snug ${
                       isSelected ? 'text-white' : 'text-gray-700'
                     }`} style={{ wordBreak: 'break-word', overflowWrap: 'break-word', hyphens: 'auto' }}>
                       {area.nombre}
