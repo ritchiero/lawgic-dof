@@ -138,6 +138,53 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200"></div>
         )}
 
+        {/* Text Overlay CSS - para imágenes de IA */}
+        {hasAIImage && documento.social_headline && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
+            {/* Glassmorphic card overlay */}
+            <div className="relative max-w-2xl w-full bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl">
+              {/* Escudo de México */}
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-12 opacity-30">
+                <div className="text-4xl">🇲🇽</div>
+              </div>
+              
+              {/* Headline */}
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 drop-shadow-2xl leading-tight mt-8">
+                {documento.social_headline}
+              </h2>
+              
+              {/* Tagline */}
+              {documento.social_tagline && (
+                <p className="text-lg md:text-xl text-white/90 drop-shadow-lg leading-relaxed">
+                  {documento.social_tagline}
+                </p>
+              )}
+              
+              {/* Impact Data Badge */}
+              {documento.social_impact_data && (
+                <div className="mt-6 inline-block bg-white/20 backdrop-blur-sm px-6 py-3 rounded-full border border-white/30">
+                  <p className="text-xl font-bold text-white drop-shadow-lg">
+                    {documento.social_impact_data}
+                  </p>
+                </div>
+              )}
+              
+              {/* Metadata */}
+              <div className="mt-6 flex items-center justify-center gap-3 text-sm text-white/80">
+                <span>{primaryArea?.emoji}</span>
+                <span>{primaryArea?.nombre || 'General'}</span>
+                <span>•</span>
+                <span>
+                  {new Date(documento.fecha_publicacion).toLocaleDateString('es-MX', { 
+                    day: '2-digit', 
+                    month: 'short' 
+                  }).toUpperCase()}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Overlay semi-transparente para mejorar contraste (solo para imágenes estáticas) */}
         {!hasAIImage && (
           <>

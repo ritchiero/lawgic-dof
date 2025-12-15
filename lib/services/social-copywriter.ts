@@ -1,3 +1,7 @@
+/**
+ * Servicio de copywriting social para generar headlines y taglines atractivos
+ */
+
 import OpenAI from 'openai';
 
 const openai = new OpenAI({
@@ -5,24 +9,14 @@ const openai = new OpenAI({
 });
 
 export interface SocialCopy {
-  headline: string;        // Hook principal (corto, impactante)
-  tagline: string;         // Contexto explicativo (1-2 líneas)
-  impactData?: string;     // Dato numérico destacable si existe
-  visualConcept: string;   // Concepto visual para la imagen
+  headline: string;
+  tagline: string;
+  impactData?: string;
+  visualConcept: string;
 }
 
 /**
- * Genera copy atractivo para redes sociales a partir de un documento legal
- * 
- * PASO 1: Análisis profundo
- * - ¿De qué trata?
- * - ¿Cuál es el impacto?
- * - ¿Qué números son relevantes?
- * 
- * PASO 2: Copywriting atractivo
- * - Headline con hook
- * - Tagline explicativo
- * - Ángulo de interés humano
+ * Genera copy social atractivo para un documento legal
  */
 export async function generateSocialCopy(
   titulo: string,
@@ -31,53 +25,33 @@ export async function generateSocialCopy(
   tipo: string
 ): Promise<SocialCopy> {
   try {
-    const prompt = `Eres un experto en copywriting para redes sociales y comunicación de documentos legales.
-
-Tu trabajo es transformar documentos legales aburridos en contenido atractivo y viral.
+    const prompt = `Eres un experto en copywriting para redes sociales. Tu tarea es transformar documentos legales aburridos en contenido viral y atractivo.
 
 DOCUMENTO:
-- Título: ${titulo}
-- Resumen: ${resumen}
-- Categoría: ${categoria}
-- Tipo: ${tipo}
+Título: ${titulo}
+Resumen: ${resumen}
+Categoría: ${categoria}
+Tipo: ${tipo}
 
-PROCESO DE ANÁLISIS:
+TAREA:
+Crea un HEADLINE y TAGLINE atractivos que:
+1. Generen curiosidad (usa preguntas provocadoras)
+2. Sean relevantes para la vida real de las personas
+3. Destaquen números o datos impactantes si los hay
+4. Sean cortos y compartibles en redes sociales
 
-1. ANÁLISIS PROFUNDO:
-   - ¿De qué trata realmente este documento?
-   - ¿Cuál es el impacto en la vida real de las personas?
-   - ¿Qué números o datos son impactantes?
-   - ¿A quién afecta directamente?
+EJEMPLOS:
+1. Documento sobre presupuesto de cultura
+   Headline: "¿A dónde va el dinero de la cultura en 2026?"
+   Tagline: "Descubre cómo se distribuirá el presupuesto público para impulsar el arte y la cultura"
+   Dato: "Más de 15 mil millones de pesos"
 
-2. COPYWRITING ATRACTIVO:
-   - Crea un HEADLINE corto y provocador (máximo 60 caracteres)
-   - Puede ser una pregunta provocadora o un dato impactante
-   - Debe generar curiosidad o sorpresa
-   
-   - Crea un TAGLINE explicativo (máximo 120 caracteres)
-   - Debe dar contexto relevante
-   - Debe conectar con el interés humano
+2. Documento sobre prohibición de contratar empresa
+   Headline: "¿Por qué nadie puede contratar a esta empresa?"
+   Tagline: "Gobierno federal prohíbe contratos con empresa por incumplimientos"
+   Dato: null
 
-3. DATOS IMPACTANTES:
-   - Extrae números relevantes (presupuesto, personas afectadas, etc.)
-   - Formatea de manera atractiva (ej: "15,000 Millones")
-
-EJEMPLOS DE TRANSFORMACIÓN:
-
-❌ Aburrido: "Calendario de Presupuesto autorizado al Ramo 48 Cultura"
-✅ Atractivo: 
-   Headline: "15,000 Millones para la Cultura"
-   Tagline: "Así se distribuirá el presupuesto oficial en 2026"
-   Dato: "15,000 MDP"
-
-❌ Aburrido: "Acuerdo por el que se modifica el diverso que establece..."
-✅ Atractivo:
-   Headline: "¿Cuánto cuesta tu trámite ahora?"
-   Tagline: "El gobierno acaba de actualizar los costos oficiales"
-   Dato: "Nuevas tarifas 2026"
-
-❌ Aburrido: "Convenio de Coordinación para construcción de infraestructura"
-✅ Atractivo:
+3. Documento sobre nueva carretera
    Headline: "Nueva carretera en camino"
    Tagline: "Gobierno federal firma acuerdo para conectar dos estados"
    Dato: "Inversión millonaria"
@@ -141,11 +115,13 @@ Responde ÚNICAMENTE con un JSON válido con esta estructura:
 
 /**
  * Genera un prompt para Vertex AI Imagen basado en el copy social
+ * IMPORTANTE: Solo genera fondo visual, el texto se renderiza con CSS
  */
 export function generateImagePrompt(copy: SocialCopy, categoria: string): string {
-  const baseStyle = `Modern social media post design, 1024x1024 square, glassmorphism style.
+  const baseStyle = `Modern social media background design, 1024x1024 square, glassmorphism style.
 Professional and institutional look with attractive gradients.
-High quality, eye-catching, shareable content.`;
+High quality, eye-catching background for text overlay.
+NO TEXT - background only, text will be added via CSS overlay.`;
 
   const colorSchemes: Record<string, string> = {
     fiscal: 'Deep purple to burgundy gradient background',
@@ -166,27 +142,26 @@ High quality, eye-catching, shareable content.`;
 
 ${gradient}
 
-MAIN CONTENT (centered, prominent):
-- Large bold headline: "${copy.headline}"
-- Subtitle below: "${copy.tagline}"
-${copy.impactData ? `- Featured data badge: "${copy.impactData}"` : ''}
-
-VISUAL ELEMENTS:
-- Glassmorphic card with frosted glass effect
-- Soft glowing borders
-- Relevant icons for: ${copy.visualConcept}
-- Mexican government seal or institutional elements
-- Modern, clean typography
-- Professional but attractive design
+VISUAL ELEMENTS (NO TEXT):
+- Glassmorphic card with frosted glass effect in the center
+- Soft glowing borders and neon-like edges
+- Relevant abstract icons for: ${copy.visualConcept}
+- Mexican government seal (Escudo Nacional) subtly placed
+- Geometric shapes and modern design elements
+- Professional but attractive background design
 
 STYLE:
-- Instagram/social media ready
+- Instagram/social media ready background
 - Eye-catching but institutional
-- Modern glassmorphism aesthetic
-- Soft shadows and glows
+- Modern glassmorphism aesthetic with depth
+- Soft shadows, glows, and light effects
 - Professional color palette
-- High contrast text for readability
+- Clean, minimal, ready for text overlay
 
-NO text other than the specified headline and tagline.
-Make it look like a professional government social media post that people would want to share.`;
+IMPORTANT: 
+- NO TEXT AT ALL - this is a background image only
+- Leave central area clear for text overlay
+- Focus on visual aesthetics and institutional branding
+- Create depth with layers and transparency
+Make it look like a professional government social media background that will have text overlaid via CSS.`;
 }

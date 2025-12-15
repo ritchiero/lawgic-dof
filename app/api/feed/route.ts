@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
           image_url: data.image_url || '',
           social_headline: data.social_headline || '',
           social_tagline: data.social_tagline || '',
+          social_impact_data: data.social_impact_data || undefined,
         };
       });
 
