@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
         : 'Administrativo';
       
       // Generar imagen con Vertex AI (con copy social y fallback a imagen de categoría)
-      const { buffer, isGenerated, copy } = await generateImageWithFallback({
+      const { buffer, usedFallback, copy } = await generateImageWithFallback({
         categoria: categoriaPrincipal,
         titulo: doc.titulo,
         tipo: doc.tipo_documento || 'Documento',
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         resumen: resultado.resumen, // Pasar resumen para generar copy social
       });
       
-      if (buffer && isGenerated) {
+      if (buffer && !usedFallback) {
         // Subir imagen generada a Firebase Storage
         const imageResult = await generateAndUploadDocumentImage({
           documentId: docSnapshot.id,
