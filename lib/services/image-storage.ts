@@ -116,39 +116,71 @@ export async function generateAndUploadDocumentImage(params: {
   fecha_publicacion: string;
   areas_detectadas: string[];
   edicion?: string;
+  customImageBuffer?: Buffer; // Buffer de imagen generada con Vertex AI
 }): Promise<UploadImageResult> {
   try {
-    // Importar dinámicamente para evitar problemas de dependencias circulares
-    const { generateDocumentImageWithFallback } = await import('./image-generator');
+    let imageBuffer: Buffer;
+    let format: 'png' | 'svg' = 'png';
 
-    // Generar imagen
-    console.log(`Generando imagen para documento ${params.documentId}...`);
-    const imageResult = await generateDocumentImageWithFallback({
-      titulo: params.titulo,
-      tipo_documento: params.tipo_documento,
-      fecha_publicacion: params.fecha_publicacion,
-      areas_detectadas: params.areas_detectadas,
-      edicion: params.edicion,
-    });
+    // Si se proporciona un buffer personalizado (Vertex AI), usarlo
+    if (params.customImageBuffer) {
+      console.log(`Usando imagen generada con Vertex AI para documento ${params.documentId}`);
+      imageBuffer = params.customImageBuffer;
+      format = 'png';
+    } else {
+      // Fallback: generar imagen con el generador SVG
+      const { generateDocumentImageWithFallback } = await import('./image-generator');
 
-    if (!imageResult.success || !imageResult.imageBase64) {
-      return {
-        success: false,
-        error: imageResult.error || 'No se pudo generar la imagen',
-      };
+      console.log(`Generando imagen fallback para documento ${params.documentId}...`);
+      const imageResult = await generateDocumentImageWithFallback({
+        titulo: params.titulo,
+        tipo_documento: params.tipo_documento,
+        fecha_publicacion: params.fecha_publicacion,
+        areas_detectadas: params.areas_detectadas,
+        edicion: params.edicion,
+      });
+
+      if (!imageResult.success || !imageResult.imageBase64) {
+        return {
+          success: false,
+          error: imageResult.error || 'No se pudo generar la imagen',
+        };
+      }
+
+      imageBuffer = Buffer.from(imageResult.imageBase64, 'base64');
+      format = imageResult.prompt?.includes('Fallback SVG') ? 'svg' : 'png';
     }
 
-    // Determinar formato (SVG si es fallback, PNG si es Imagen 4)
-    const format = imageResult.prompt?.includes('Fallback SVG') ? 'svg' : 'png';
+    // Generar nombre único para la imagen
+    const fileName = `${params.documentId}.${format}`;
+    const storagePath = `document-images/${fileName}`;
 
-    // Subir imagen
-    const uploadResult = await uploadDocumentImage({
-      imageBase64: imageResult.imageBase64,
-      documentId: params.documentId,
-      format,
+    console.log(`Subiendo imagen a: ${storagePath}`);
+
+    // Crear referencia al archivo
+    const file = storage.bucket().file(storagePath);
+
+    // Subir archivo
+    await file.save(imageBuffer, {
+      metadata: {
+        contentType: format === 'svg' ? 'image/svg+xml' : 'image/png',
+        cacheControl: 'public, max-age=31536000', // Cache por 1 año
+      },
     });
 
-    return uploadResult;
+    // Hacer el archivo público
+    await file.makePublic();
+
+    // Obtener URL pública
+    const publicUrl = `https://storage.googleapis.com/${storage.bucket().name}/${storagePath}`;
+
+    console.log(`✅ Imagen subida exitosamente: ${publicUrl}`);
+
+    return {
+      success: true,
+      publicUrl,
+      storagePath,
+    };
   } catch (error) {
     console.error('Error en generateAndUploadDocumentImage:', error);
     return {

@@ -31,6 +31,8 @@ export interface DocumentoDOF {
   procesado: boolean;
   image_url?: string;  // URL de la imagen hero generada
   image_storage_path?: string;  // Path en Firebase Storage
+  image_generated_with_ai?: boolean;  // Si la imagen fue generada con Vertex AI
+  image_category?: string;  // Categoría de la imagen (si usa imagen estática)
   created_at: Timestamp;
 }
 

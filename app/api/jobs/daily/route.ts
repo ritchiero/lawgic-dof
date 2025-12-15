@@ -4,6 +4,7 @@ import { obtenerDocumentosDOF, obtenerExtracto, determinarEdicionActual } from '
 import { clasificarDocumento } from '@/lib/services/clasificador';
 import { enviarEmailAlerta } from '@/lib/services/emailer';
 import { generateAndUploadDocumentImage } from '@/lib/services/image-storage';
+import { generateImageWithFallback } from '@/lib/services/vertex-image-generator';
 import { DocumentoDOF } from '@/lib/types';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -77,25 +78,51 @@ export async function POST(request: NextRequest) {
         procesado: true,
       });
 
-      // PASO 2.5: Generar y subir imagen hero
-      console.log(`Generando imagen hero para: ${doc.titulo.substring(0, 50)}...`);
-      const imageResult = await generateAndUploadDocumentImage({
-        documentId: docSnapshot.id,
+      // PASO 2.5: Generar imagen con Vertex AI
+      console.log(`Generando imagen con Vertex AI para: ${doc.titulo.substring(0, 50)}...`);
+      
+      // Obtener categoría principal
+      const categoriaPrincipal = resultado.areas && resultado.areas.length > 0 
+        ? resultado.areas[0] 
+        : 'Administrativo';
+      
+      // Generar imagen con Vertex AI (con fallback a imagen de categoría)
+      const { buffer, isGenerated } = await generateImageWithFallback({
+        categoria: categoriaPrincipal,
         titulo: doc.titulo,
-        tipo_documento: doc.tipo_documento || 'Documento',
-        fecha_publicacion: doc.fecha_publicacion,
-        areas_detectadas: resultado.areas,
-        edicion: doc.edicion,
+        tipo: doc.tipo_documento || 'Documento',
+        documentoId: docSnapshot.id,
       });
-
-      if (imageResult.success) {
-        await docSnapshot.ref.update({
-          image_url: imageResult.publicUrl,
-          image_storage_path: imageResult.storagePath,
+      
+      if (buffer && isGenerated) {
+        // Subir imagen generada a Firebase Storage
+        const imageResult = await generateAndUploadDocumentImage({
+          documentId: docSnapshot.id,
+          titulo: doc.titulo,
+          tipo_documento: doc.tipo_documento || 'Documento',
+          fecha_publicacion: doc.fecha_publicacion,
+          areas_detectadas: resultado.areas,
+          edicion: doc.edicion,
+          customImageBuffer: buffer, // Pasar buffer generado
         });
-        console.log(`✅ Imagen generada: ${imageResult.publicUrl}`);
+        
+        if (imageResult.success) {
+          await docSnapshot.ref.update({
+            image_url: imageResult.publicUrl,
+            image_storage_path: imageResult.storagePath,
+            image_generated_with_ai: true,
+          });
+          console.log(`✅ Imagen generada con Vertex AI: ${imageResult.publicUrl}`);
+        } else {
+          console.error(`❌ Error subiendo imagen: ${imageResult.error}`);
+        }
       } else {
-        console.error(`❌ Error generando imagen: ${imageResult.error}`);
+        // Fallback: usar imagen de categoría estática
+        console.log(`ℹ️  Usando imagen de categoría estática para: ${categoriaPrincipal}`);
+        await docSnapshot.ref.update({
+          image_category: categoriaPrincipal,
+          image_generated_with_ai: false,
+        });
       }
 
       // Pequeña pausa para no saturar la API
