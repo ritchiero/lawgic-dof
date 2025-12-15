@@ -61,6 +61,15 @@ export async function GET(request: NextRequest) {
       documentos = getDemoDocumentos();
     }
 
+    // Filtrar por áreas en memoria (para datos demo o cuando Firestore no puede filtrar)
+    // Nota: Si los datos vienen de Firestore ya filtrados, esto no afecta
+    if (areasFilter.length > 0) {
+      documentos = documentos.filter(doc => {
+        const docAreas = doc.areas_detectadas || [];
+        return areasFilter.some(area => docAreas.includes(area));
+      });
+    }
+
     // Filtrar por búsqueda (en memoria, ya que Firestore no soporta búsqueda full-text)
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
@@ -87,10 +96,32 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error en API de feed:', error);
     
-    // En caso de error, devolver datos de ejemplo
+    // En caso de error, devolver datos de ejemplo con filtros aplicados
     const page = parseInt(request.nextUrl.searchParams.get('page') || '1');
     const limit = parseInt(request.nextUrl.searchParams.get('limit') || '10');
-    const allDocumentos = getDemoDocumentos();
+    const areasFilter = request.nextUrl.searchParams.get('areas')?.split(',').filter(Boolean) || [];
+    const searchQuery = request.nextUrl.searchParams.get('q') || '';
+    
+    let allDocumentos = getDemoDocumentos();
+    
+    // Aplicar filtro de áreas
+    if (areasFilter.length > 0) {
+      allDocumentos = allDocumentos.filter(doc => {
+        const docAreas = doc.areas_detectadas || [];
+        return areasFilter.some(area => docAreas.includes(area));
+      });
+    }
+    
+    // Aplicar filtro de búsqueda
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      allDocumentos = allDocumentos.filter(doc =>
+        doc.titulo.toLowerCase().includes(query) ||
+        doc.resumen_ia?.toLowerCase().includes(query) ||
+        doc.tipo_documento?.toLowerCase().includes(query)
+      );
+    }
+    
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
     const documentosPaginados = allDocumentos.slice(startIndex, endIndex);
