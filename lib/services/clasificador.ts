@@ -1,8 +1,13 @@
 import OpenAI from 'openai';
 
-const openai = process.env.OPENAI_API_KEY
-  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-  : null;
+let openaiClient: OpenAI | null = null;
+
+function getOpenAI(): OpenAI | null {
+  if (!openaiClient && process.env.OPENAI_API_KEY) {
+    openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return openaiClient;
+}
 
 const AREAS_VALIDAS = [
   "fiscal", "corporativo", "laboral", "penal", "civil", "mercantil",
@@ -80,6 +85,7 @@ Responde ÚNICAMENTE con JSON válido en este formato:
 
 Si el documento no aplica claramente a ninguna área, usa: {"areas": [], "resumen": "..."}`;
 
+    const openai = getOpenAI();
     if (!openai) {
       console.error('OpenAI API key not configured');
       return { areas: [], resumen: 'API no configurada' };
