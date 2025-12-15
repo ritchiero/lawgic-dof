@@ -114,14 +114,14 @@ Responde ÚNICAMENTE con un JSON válido con esta estructura:
 }
 
 /**
- * Genera un prompt para Vertex AI Imagen basado en el copy social
- * IMPORTANTE: Solo genera fondo visual, el texto se renderiza con CSS
+ * Genera un prompt para DALL-E 3 basado en el copy social
+ * IMPORTANTE: Genera post completo con texto integrado
  */
 export function generateImagePrompt(copy: SocialCopy, categoria: string): string {
-  const baseStyle = `Modern social media background design, 1024x1024 square, glassmorphism style.
-Professional and institutional look with attractive gradients.
-High quality, eye-catching background for text overlay.
-NO TEXT - background only, text will be added via CSS overlay.`;
+  const baseStyle = `Create a complete Instagram/social media post image, 1024x1024 square.
+Modern glassmorphism style with integrated text.
+Professional Mexican government social media post.
+MUST include all text in Spanish, perfectly spelled.`;
 
   const colorSchemes: Record<string, string> = {
     fiscal: 'Rich deep purple (#4A148C) to dark burgundy (#880E4F) gradient, vibrant and saturated',
@@ -142,31 +142,42 @@ NO TEXT - background only, text will be added via CSS overlay.`;
 
 ${gradient}
 
-VISUAL ELEMENTS (NO TEXT):
-- DARK, saturated gradient background (80-90% opacity, not washed out)
-- Glassmorphic card with strong frosted glass effect in center (white overlay at 15-20% opacity)
-- Bright glowing borders with neon-like edges (vibrant, not subtle)
-- Relevant abstract icons for: ${copy.visualConcept} (bold, visible, not faded)
-- Mexican government seal (Escudo Nacional) prominently placed (30-40% opacity, gold/white tint)
-- Geometric shapes and modern design elements with HIGH contrast
-- Professional but BOLD and eye-catching background design
+TEXT CONTENT (MUST BE INCLUDED IN IMAGE):
+- Main Headline (large, bold): "${copy.headline}"
+- Tagline (medium size): "${copy.tagline}"
+${copy.impactData ? `- Impact Data Badge: "${copy.impactData}"` : ''}
+- Category indicator: "${categoria.toUpperCase()}"
+- Small text at bottom: "DOF - Diario Oficial de la Federación"
 
-STYLE REQUIREMENTS:
-- DARK background (avoid light/pastel colors)
-- HIGH CONTRAST between elements
-- SATURATED colors (vibrant, not washed out)
-- Instagram/TikTok/social media ready (must grab attention in feed)
-- Eye-catching AND institutional
-- Modern glassmorphism with STRONG depth and layers
-- Dramatic shadows, bright glows, and light effects
-- Professional but IMPACTFUL color palette
-- Clean composition with clear focal area for text overlay
+VISUAL DESIGN:
+- DARK, saturated ${gradient}
+- Glassmorphic card with frosted glass effect in center
+- Bright glowing borders with neon-like edges
+- Relevant icons for: ${copy.visualConcept}
+- Mexican government seal (Escudo Nacional de México) prominently displayed
+- Geometric shapes and modern design elements
+- Professional but BOLD and eye-catching design
 
-CRITICAL REQUIREMENTS:
-- NO TEXT AT ALL - this is a background image only
-- Background must be DARK enough for white text to pop
-- Central area must have subtle vignette or overlay for text readability
-- Must look premium, modern, and shareable on social media
-- Avoid washed out or too light backgrounds
-Create a BOLD, DARK, professional government social media background that commands attention and provides perfect contrast for white text overlay.`;
+TYPOGRAPHY REQUIREMENTS:
+- Headline: Very large (60-80pt), bold, white text with shadow
+- Tagline: Medium (24-32pt), white text, good contrast
+- All text must be in SPANISH
+- All text must be PERFECTLY SPELLED (no typos)
+- Text must be READABLE and HIGH CONTRAST against background
+- Use modern sans-serif fonts
+
+STYLE:
+- Instagram/TikTok/LinkedIn ready
+- Eye-catching but institutional
+- Modern glassmorphism aesthetic
+- Dramatic shadows and glows
+- Professional color palette
+- Must look like a real government social media post
+
+CRITICAL:
+- ALL text must be in Spanish and perfectly spelled
+- Design must be complete and ready to post
+- No placeholder text or lorem ipsum
+- Must include Mexican government branding
+Create a complete, professional Mexican government social media post that looks premium and shareable.`;
 }

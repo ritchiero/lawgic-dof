@@ -138,50 +138,7 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
           <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200"></div>
         )}
 
-        {/* Text Overlay CSS - para imágenes de IA */}
-        {hasAIImage && documento.social_headline && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-6 md:p-8 text-center">
-            {/* Dark vignette para mejorar contraste */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/40"></div>
-            
-            {/* Glassmorphic card overlay */}
-            <div className="relative max-w-2xl w-full bg-black/30 backdrop-blur-xl rounded-3xl p-6 md:p-10 border-2 border-white/30 shadow-2xl">
-              {/* Escudo de México - más visible */}
-              <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border-2 border-white/40 shadow-xl">
-                <div className="text-3xl">🇲🇽</div>
-              </div>
-              
-              {/* Headline - más grande y bold */}
-              <h2 className="text-4xl md:text-5xl font-black text-white mb-5 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] leading-tight mt-6" style={{textShadow: '0 2px 20px rgba(0,0,0,0.9), 0 0 40px rgba(255,255,255,0.3)'}}>
-                {documento.social_headline}
-              </h2>
-              
-              {/* Tagline - mejor contraste */}
-              {documento.social_tagline && (
-                <p className="text-xl md:text-2xl text-white font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] leading-relaxed mb-4">
-                  {documento.social_tagline}
-                </p>
-              )}
-              
-              {/* Separador decorativo */}
-              <div className="w-24 h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent mx-auto my-6"></div>
-              
-              {/* Metadata - más prominente */}
-              <div className="flex items-center justify-center gap-4 text-base md:text-lg text-white font-semibold">
-                <span className="text-2xl">{primaryArea?.emoji}</span>
-                <span>{primaryArea?.nombre || 'General'}</span>
-                <span className="text-white/60">•</span>
-                <span>
-                  {new Date(documento.fecha_publicacion).toLocaleDateString('es-MX', { 
-                    day: '2-digit', 
-                    month: 'short',
-                    year: 'numeric'
-                  }).toUpperCase()}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Las imágenes de IA ya tienen texto integrado, no necesitan overlay CSS */}
 
         {/* Overlay semi-transparente para mejorar contraste (solo para imágenes estáticas) */}
         {!hasAIImage && (
