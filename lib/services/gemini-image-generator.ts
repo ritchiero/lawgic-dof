@@ -1,36 +1,11 @@
 /**
  * Servicio de generación de imágenes usando Gemini 3 Pro Image (Nano Banana Pro)
  * Genera posts de redes sociales con texto perfectamente integrado
+ * Usa Vertex AI REST API directamente con google-auth-library
  */
 
-import { GoogleGenAI } from '@google/genai';
+import { GoogleAuth } from 'google-auth-library';
 import { AREAS_ARRAY } from '@/lib/areas';
-
-// Inicializar cliente de Google Gen AI con Vertex AI
-// Usa las mismas credenciales que Firebase Admin a través de variables de entorno
-function getGeminiClient() {
-  // Verificar que las credenciales estén configuradas
-  if (!process.env.GOOGLE_CLOUD_PROJECT_ID) {
-    throw new Error('GOOGLE_CLOUD_PROJECT_ID no está configurado');
-  }
-
-  // El SDK usará las credenciales de las variables de entorno automáticamente
-  // GOOGLE_CLOUD_PROJECT, GOOGLE_CLOUD_LOCATION, y Application Default Credentials
-  return new GoogleGenAI({
-    vertexai: true,
-    project: process.env.GOOGLE_CLOUD_PROJECT_ID,
-    location: 'us-central1',
-  });
-}
-
-let aiInstance: GoogleGenAI | null = null;
-
-function getAI(): GoogleGenAI {
-  if (!aiInstance) {
-    aiInstance = getGeminiClient();
-  }
-  return aiInstance;
-}
 
 // Mapa de colores por categoría
 const CATEGORY_COLORS: Record<string, { primary: string; secondary: string; description: string }> = {
@@ -210,7 +185,29 @@ Create a complete, production-ready social media post that transforms this legal
 }
 
 /**
- * Genera imagen usando Gemini 3 Pro Image (Nano Banana Pro)
+ * Obtiene access token para Vertex AI usando google-auth-library
+ */
+async function getAccessToken(): Promise<string> {
+  const auth = new GoogleAuth({
+    credentials: {
+      client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL,
+      private_key: (process.env.GOOGLE_CLOUD_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY)?.replace(/\\n/g, '\n'),
+    },
+    scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+  });
+
+  const client = await auth.getClient();
+  const accessToken = await client.getAccessToken();
+  
+  if (!accessToken.token) {
+    throw new Error('No se pudo obtener access token');
+  }
+
+  return accessToken.token;
+}
+
+/**
+ * Genera imagen usando Gemini 3 Pro Image vía Vertex AI REST API
  */
 export async function generateDocumentImage(
   params: GenerateImageParams
@@ -222,27 +219,52 @@ export async function generateDocumentImage(
     const prompt = generatePrompt(params);
     console.log('📝 Prompt generado (primeras 200 chars):', prompt.substring(0, 200) + '...');
 
-    // Llamar a Gemini 3 Pro Image usando generateContent
-    const ai = getAI();
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-pro-image-preview',
-      contents: prompt,
-      config: {
-        responseModalities: ['IMAGE'],
-        imageConfig: {
-          aspectRatio: '1:1',
+    // Obtener access token
+    const accessToken = await getAccessToken();
+    console.log('✅ Access token obtenido');
+
+    // Construir URL de Vertex AI
+    const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
+    const location = 'us-central1';
+    const model = 'gemini-3-pro-image-preview';
+    const url = `https://${location}-aiplatform.googleapis.com/v1/projects/${projectId}/locations/${location}/publishers/google/models/${model}:generateContent`;
+
+    // Hacer request a Vertex AI
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          role: 'user',
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+          responseModalities: ['IMAGE'],
+          imageConfig: {
+            aspectRatio: '1:1',
+          }
         }
-      }
+      })
     });
 
-    console.log('✅ Respuesta recibida, procesando partes...');
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Error de Vertex AI:', errorText);
+      throw new Error(`Vertex AI error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ Respuesta recibida de Vertex AI');
 
     // Extraer imagen de la respuesta
-    if (response.candidates && response.candidates.length > 0) {
-      const candidate = response.candidates[0];
+    if (data.candidates && data.candidates.length > 0) {
+      const candidate = data.candidates[0];
       if (candidate.content && candidate.content.parts) {
         for (const part of candidate.content.parts) {
-          if (part.inlineData) {
+          if (part.inlineData && part.inlineData.data) {
             console.log(`✅ Imagen generada con mimeType: ${part.inlineData.mimeType}`);
             
             return {
