@@ -66,6 +66,7 @@ export async function GET() {
     
     const photoResult = await generateBackgroundPhotoWithRetry({
       titulo: data.titulo,
+      resumen: data.resumen || data.extracto,
       categoria,
     });
 

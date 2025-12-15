@@ -3,7 +3,7 @@
  * Solo genera la foto, sin texto. El frontend compone el overlay.
  */
 
-import { generatePhotoBackgroundPrompt } from './semantic-analyzer';
+import { generateIntelligentPhotoPrompt } from './intelligent-semantic-analyzer';
 
 // Lazy initialization para OpenAI
 let openaiClient: any = null;
@@ -20,6 +20,7 @@ function getOpenAIClient() {
 
 export interface BackgroundPhotoOptions {
   titulo: string;
+  resumen?: string;
   categoria?: string;
 }
 
@@ -30,7 +31,9 @@ export interface BackgroundPhotoResult {
   error?: string;
   metadata?: {
     prompt: string;
-    entity?: string;
+    mainTopic?: string;
+    entities?: string[];
+    reasoning?: string;
   };
 }
 
@@ -45,9 +48,13 @@ export async function generateBackgroundPhoto(
     console.log(`   Título: ${options.titulo.substring(0, 60)}...`);
     console.log(`   Categoría: ${options.categoria || 'general'}`);
 
-    // Generar prompt para SOLO foto (sin texto)
-    const prompt = generatePhotoBackgroundPrompt(options.titulo, options.categoria);
+    // Generar prompt inteligente con GPT-4o-mini
+    const { prompt, analysis } = await generateIntelligentPhotoPrompt(
+      options.titulo,
+      options.resumen
+    );
     
+    console.log(`   🧠 Tema principal: ${analysis.mainTopic}`);
     console.log(`   📝 Prompt: ${prompt.substring(0, 100)}...`);
 
     // Generar foto con DALL-E 3
@@ -82,6 +89,9 @@ export async function generateBackgroundPhoto(
       photoBase64,
       metadata: {
         prompt,
+        mainTopic: analysis.mainTopic,
+        entities: analysis.entities,
+        reasoning: analysis.reasoning,
       },
     };
 
