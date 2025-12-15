@@ -115,11 +115,11 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
         transition-all duration-300 ease-out
         overflow-hidden
         group
-        mb-5
+        mb-3
       `}
     >
       {/* Imagen de fondo con overlay de texto */}
-      <div className="relative w-full aspect-square overflow-hidden">
+      <div className="relative w-full aspect-[4/3] overflow-hidden">
         {/* Imagen de fondo */}
         {!imageError && (
           <Image
@@ -141,25 +141,25 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
         {/* Text Overlay */}
         <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
           {/* Emoji grande */}
-          <div className="text-[120px] mb-6 drop-shadow-lg">
+          <div className="text-[72px] mb-3 drop-shadow-lg">
             {primaryArea?.emoji || '📄'}
           </div>
 
           {/* Palabras clave */}
-          <h3 className="text-3xl font-bold text-gray-800 mb-4 drop-shadow-md leading-tight max-w-[80%]">
+          <h3 className="text-xl font-bold text-gray-800 mb-2 drop-shadow-md leading-tight max-w-[80%]">
             {keywords}
           </h3>
 
           {/* Categoría */}
-          <p className="text-xl text-gray-700 mb-4 drop-shadow-sm font-medium">
+          <p className="text-base text-gray-700 mb-2 drop-shadow-sm font-medium">
             {primaryArea?.nombre || 'General'}
           </p>
 
           {/* Separador decorativo */}
-          <div className="w-32 h-0.5 bg-gray-300 mb-4"></div>
+          <div className="w-20 h-0.5 bg-gray-300 mb-2"></div>
 
           {/* Metadata */}
-          <p className="text-base text-gray-600 drop-shadow-sm">
+          <p className="text-sm text-gray-600 drop-shadow-sm">
             {new Date(documento.fecha_publicacion).toLocaleDateString('es-MX', { 
               day: '2-digit', 
               month: 'short' 
@@ -184,22 +184,22 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
       </div>
 
       {/* Contenido inferior (título completo, resumen, acciones) */}
-      <div className="p-6">
+      <div className="p-4">
         {/* Título completo */}
         <h4 
-          className="font-serif font-bold text-lg leading-tight mb-3 text-gray-900 cursor-pointer hover:text-blue-600 transition-colors line-clamp-2"
+          className="font-serif font-bold text-base leading-tight mb-2 text-gray-900 cursor-pointer hover:text-blue-600 transition-colors line-clamp-2"
           onClick={() => setExpanded(!expanded)}
         >
           {documento.titulo}
         </h4>
 
         {/* Resumen */}
-        <p className={`text-sm leading-relaxed text-gray-600 mb-4 ${expanded ? '' : 'line-clamp-2'}`}>
+        <p className={`text-xs leading-relaxed text-gray-600 mb-3 ${expanded ? '' : 'line-clamp-2'}`}>
           {documento.resumen_ia || 'Resumen no disponible'}
         </p>
 
         {/* Separador */}
-        <div className="border-t border-gray-100 mb-4"></div>
+        <div className="border-t border-gray-100 mb-3"></div>
 
         {/* Acciones - estilo redes sociales */}
         <div className="flex items-center justify-between">
@@ -292,7 +292,7 @@ export function DocumentCardSkeleton() {
         </div>
 
         {/* Separador */}
-        <div className="border-t border-gray-100 mb-4"></div>
+        <div className="border-t border-gray-100 mb-3"></div>
 
         {/* Acciones */}
         <div className="flex items-center justify-between">
