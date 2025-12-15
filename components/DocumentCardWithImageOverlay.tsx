@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AREAS_ARRAY } from '@/lib/areas';
-import { Heart, Share2, ExternalLink, Clock, Sparkles, Eye } from 'lucide-react';
+import { Bookmark, Share2, ExternalLink, Clock, Sparkles } from 'lucide-react';
 import Image from 'next/image';
 
 interface DocumentCardProps {
@@ -85,9 +85,7 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
     documento.tipo_documento?.includes(tipo) || documento.titulo?.includes(tipo)
   );
 
-  // Simular número de guardados y vistas (en producción vendría del backend)
-  const savedCount = Math.floor(Math.random() * 50) + 5;
-  const viewCount = Math.floor(Math.random() * 200) + 20;
+  // Nota: Eliminamos contadores falsos de likes/vistas por no ser relevantes en un feed legal profesional
 
   // Extraer palabras clave del título (máximo 3 palabras)
   const extractKeywords = (titulo: string): string => {
@@ -210,29 +208,20 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
         <div className="flex items-center justify-between">
           {/* Lado izquierdo: Interacciones con contexto */}
           <div className="flex items-center gap-5">
-            {/* Botón de guardar con animación y contexto */}
+            {/* Botón de guardar con animación */}
             <button
               onClick={handleSave}
               className="flex items-center gap-1.5 text-sm font-semibold transition-all hover:scale-105 group/save"
               title={saved ? 'Quitar de guardados' : 'Guardar documento'}
             >
-              <Heart 
+              <Bookmark 
                 className={`w-5 h-5 transition-all ${
                   saved 
-                    ? 'fill-red-500 text-red-500' 
-                    : 'text-gray-400 group-hover/save:text-red-500'
+                    ? 'fill-blue-600 text-blue-600' 
+                    : 'text-gray-400 group-hover/save:text-blue-600'
                 } ${isAnimating ? 'animate-bounce' : ''}`}
               />
-              <span className={`${saved ? 'text-red-500' : 'text-gray-600'} group-hover/save:text-red-500`}>
-                {savedCount + (saved ? 1 : 0)}
-              </span>
             </button>
-
-            {/* Vistas con icono */}
-            <div className="flex items-center gap-1.5 text-sm text-gray-500" title="Vistas">
-              <Eye className="w-4 h-4" />
-              <span>{viewCount}</span>
-            </div>
 
             {/* Botón de compartir con tooltip */}
             <button
