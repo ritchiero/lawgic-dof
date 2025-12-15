@@ -94,3 +94,4 @@ Visita http://localhost:3000
 ## Licencia
 
 © 2025 Lawgic. Todos los derechos reservados.
+# Force redeploy Mon Dec 15 03:02:14 EST 2025
