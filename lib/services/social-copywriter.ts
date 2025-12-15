@@ -124,16 +124,16 @@ High quality, eye-catching background for text overlay.
 NO TEXT - background only, text will be added via CSS overlay.`;
 
   const colorSchemes: Record<string, string> = {
-    fiscal: 'Deep purple to burgundy gradient background',
-    laboral: 'Navy blue to teal gradient background',
-    mercantil: 'Forest green to emerald gradient background',
-    administrativo: 'Royal blue to sky blue gradient background',
-    penal: 'Dark red to orange gradient background',
-    ambiental: 'Green to lime gradient background',
-    salud: 'Cyan to blue gradient background',
-    educacion: 'Indigo to purple gradient background',
-    tecnologia: 'Electric blue to cyan gradient background',
-    financiero: 'Gold to amber gradient background',
+    fiscal: 'Rich deep purple (#4A148C) to dark burgundy (#880E4F) gradient, vibrant and saturated',
+    laboral: 'Deep navy blue (#0D47A1) to dark teal (#00695C) gradient, bold and professional',
+    mercantil: 'Dark forest green (#1B5E20) to rich emerald (#00695C) gradient, strong and trustworthy',
+    administrativo: 'Vibrant royal blue (#1565C0) to deep sky blue (#0277BD) gradient, institutional and modern',
+    penal: 'Intense dark red (#B71C1C) to deep orange (#E65100) gradient, dramatic and serious',
+    ambiental: 'Rich forest green (#2E7D32) to vibrant lime (#558B2F) gradient, natural and fresh',
+    salud: 'Deep cyan (#00838F) to rich blue (#01579B) gradient, clean and medical',
+    educacion: 'Deep indigo (#283593) to rich purple (#4A148C) gradient, scholarly and elegant',
+    tecnologia: 'Vibrant electric blue (#0277BD) to deep cyan (#00838F) gradient, modern and digital',
+    financiero: 'Rich gold (#F57F17) to deep amber (#E65100) gradient, valuable and premium',
   };
 
   const gradient = colorSchemes[categoria] || 'Blue to purple gradient background';
@@ -143,25 +143,30 @@ NO TEXT - background only, text will be added via CSS overlay.`;
 ${gradient}
 
 VISUAL ELEMENTS (NO TEXT):
-- Glassmorphic card with frosted glass effect in the center
-- Soft glowing borders and neon-like edges
-- Relevant abstract icons for: ${copy.visualConcept}
-- Mexican government seal (Escudo Nacional) subtly placed
-- Geometric shapes and modern design elements
-- Professional but attractive background design
+- DARK, saturated gradient background (80-90% opacity, not washed out)
+- Glassmorphic card with strong frosted glass effect in center (white overlay at 15-20% opacity)
+- Bright glowing borders with neon-like edges (vibrant, not subtle)
+- Relevant abstract icons for: ${copy.visualConcept} (bold, visible, not faded)
+- Mexican government seal (Escudo Nacional) prominently placed (30-40% opacity, gold/white tint)
+- Geometric shapes and modern design elements with HIGH contrast
+- Professional but BOLD and eye-catching background design
 
-STYLE:
-- Instagram/social media ready background
-- Eye-catching but institutional
-- Modern glassmorphism aesthetic with depth
-- Soft shadows, glows, and light effects
-- Professional color palette
-- Clean, minimal, ready for text overlay
+STYLE REQUIREMENTS:
+- DARK background (avoid light/pastel colors)
+- HIGH CONTRAST between elements
+- SATURATED colors (vibrant, not washed out)
+- Instagram/TikTok/social media ready (must grab attention in feed)
+- Eye-catching AND institutional
+- Modern glassmorphism with STRONG depth and layers
+- Dramatic shadows, bright glows, and light effects
+- Professional but IMPACTFUL color palette
+- Clean composition with clear focal area for text overlay
 
-IMPORTANT: 
+CRITICAL REQUIREMENTS:
 - NO TEXT AT ALL - this is a background image only
-- Leave central area clear for text overlay
-- Focus on visual aesthetics and institutional branding
-- Create depth with layers and transparency
-Make it look like a professional government social media background that will have text overlaid via CSS.`;
+- Background must be DARK enough for white text to pop
+- Central area must have subtle vignette or overlay for text readability
+- Must look premium, modern, and shareable on social media
+- Avoid washed out or too light backgrounds
+Create a BOLD, DARK, professional government social media background that commands attention and provides perfect contrast for white text overlay.`;
 }
