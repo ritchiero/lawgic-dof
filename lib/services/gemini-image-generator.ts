@@ -7,26 +7,19 @@ import { GoogleGenAI } from '@google/genai';
 import { AREAS_ARRAY } from '@/lib/areas';
 
 // Inicializar cliente de Google Gen AI con Vertex AI
-// Usa las mismas credenciales que Firebase Admin
+// Usa las mismas credenciales que Firebase Admin a través de variables de entorno
 function getGeminiClient() {
   // Verificar que las credenciales estén configuradas
   if (!process.env.GOOGLE_CLOUD_PROJECT_ID) {
     throw new Error('GOOGLE_CLOUD_PROJECT_ID no está configurado');
   }
 
-  // Configurar credenciales de Service Account
-  const credentials = {
-    client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL,
-    private_key: (process.env.GOOGLE_CLOUD_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY)?.replace(/\\n/g, '\n'),
-  };
-
+  // El SDK usará las credenciales de las variables de entorno automáticamente
+  // GOOGLE_CLOUD_PROJECT, GOOGLE_CLOUD_LOCATION, y Application Default Credentials
   return new GoogleGenAI({
     vertexai: true,
     project: process.env.GOOGLE_CLOUD_PROJECT_ID,
-    location: 'us-central1', // Cambiar de 'global' a región específica
-    authOptions: {
-      credentials,
-    },
+    location: 'us-central1',
   });
 }
 
