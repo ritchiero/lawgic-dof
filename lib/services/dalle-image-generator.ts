@@ -58,7 +58,7 @@ NO TEXT - background only for text overlay.`;
       style: 'vivid', // 'vivid' o 'natural'
     });
     
-    const imageUrl = response.data[0]?.url;
+    const imageUrl = response.data?.[0]?.url;
     
     if (!imageUrl) {
       throw new Error('No se recibió URL de imagen de DALL-E 3');
