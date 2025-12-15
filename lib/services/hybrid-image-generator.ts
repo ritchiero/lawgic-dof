@@ -65,7 +65,7 @@ export async function generateHybridImage(
       response_format: 'url',
     });
 
-    const backgroundUrl = dalleResponse.data[0]?.url;
+    const backgroundUrl = dalleResponse.data?.[0]?.url;
     if (!backgroundUrl) {
       throw new Error('DALL-E no retornó URL de imagen');
     }
