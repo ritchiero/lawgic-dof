@@ -12,12 +12,23 @@ export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
-    const { documentId } = await request.json();
+    // Aceptar documentId desde query param o body
+    const searchParams = request.nextUrl.searchParams;
+    let documentId = searchParams.get('id') || searchParams.get('documentId');
+    
+    if (!documentId) {
+      try {
+        const body = await request.json();
+        documentId = body.documentId;
+      } catch (e) {
+        // Body vacío o inválido, continuar con null
+      }
+    }
 
     if (!documentId) {
       return NextResponse.json({
         success: false,
-        error: 'documentId requerido'
+        error: 'documentId requerido (query param ?id=xxx o body JSON)'
       }, { status: 400 });
     }
 
