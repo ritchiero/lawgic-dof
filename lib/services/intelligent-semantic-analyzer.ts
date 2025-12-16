@@ -115,7 +115,10 @@ Responde en formato JSON siguiendo los 3 pasos:
     const result = JSON.parse(response.choices[0].message.content || '{}');
 
     console.log(`   ✅ Tema principal: ${result.mainTopic}`);
-    console.log(`   📸 Foto: ${result.photoDescription.substring(0, 60)}...`);
+    const photoDesc = result.step3_photoDescription || result.photoDescription || '';
+    if (photoDesc) {
+      console.log(`   📸 Foto: ${photoDesc.substring(0, 60)}...`);
+    }
 
     return {
       mainTopic: result.mainTopic || 'Documento gubernamental',
