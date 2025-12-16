@@ -58,27 +58,31 @@ PROCESO OBLIGATORIO (3 pasos):
    - Sé ESPECÍFICO: institución, lugar, acción
    - Estilo: Photojournalism documental
 
-EJEMPLOS DEL PROCESO:
+EJEMPLOS DEL PROCESO Y JSON ESPERADO:
 
-Título: "Acuerdo General número 19/2025 del Pleno de la Suprema Corte de Justicia de la Nación, por el que se dispone el aplazamiento del dictado de la resolución..."
-1. ¿De qué trata? → La SCJN tuvo un acuerdo
-2. ¿Qué buscarías? → Imágenes de la SCJN en sesiones
-3. Descripción: "Professional photojournalism image of Mexican Supreme Court justices in session, ministers discussing at the courtroom, SCJN building interior, documentary style"
+Ejemplo 1:
+Título: "Acuerdo General número 19/2025 del Pleno de la Suprema Corte de Justicia de la Nación..."
 
+JSON de respuesta:
+{
+  "step1_whatIsItAbout": "La SCJN tuvo un acuerdo",
+  "step2_whatPhotoToSearch": "Imágenes de la SCJN en sesiones",
+  "step3_photoDescription": "Professional photojournalism image of Mexican Supreme Court justices in session, ministers discussing at the courtroom, SCJN building interior, documentary style",
+  "mainTopic": "Acuerdo SCJN",
+  "entities": ["SCJN", "Suprema Corte"]
+}
+
+Ejemplo 2:
 Título: "Calendario de Presupuesto autorizado al Ramo 48 Cultura para el ejercicio fiscal 2026"
-1. ¿De qué trata? → Presupuesto para Cultura (Secretaría de Cultura)
-2. ¿Qué buscarías? → Edificio icónico cultural mexicano
-3. Descripción: "Professional photojournalism image of Palacio de Bellas Artes in Mexico City, iconic cultural building exterior, daytime, architectural documentary photography"
 
-Título: "Acuerdo del INE sobre proceso electoral"
-1. ¿De qué trata? → INE y elecciones
-2. ¿Qué buscarías? → Proceso electoral, votación
-3. Descripción: "Professional photojournalism image of Mexican voting booth with ballot box, citizen casting vote, electoral process, documentary style"
-
-Título: "Resolución sobre instituciones de crédito"
-1. ¿De qué trata? → Bancos y sistema financiero
-2. ¿Qué buscarías? → Banco mexicano
-3. Descripción: "Professional photojournalism image of modern Mexican bank building exterior, financial institution, business district, documentary photography"
+JSON de respuesta:
+{
+  "step1_whatIsItAbout": "Presupuesto para Cultura (Secretaría de Cultura)",
+  "step2_whatPhotoToSearch": "Edificio icónico cultural mexicano",
+  "step3_photoDescription": "Professional photojournalism image of Palacio de Bellas Artes in Mexico City, iconic cultural building exterior, daytime, architectural documentary photography",
+  "mainTopic": "Presupuesto Cultura",
+  "entities": ["Secretaría de Cultura", "Ramo 48"]
+}
 
 REGLAS:
 - SÉ DIRECTO Y LITERAL (no creativo)
@@ -103,11 +107,11 @@ Responde en formato JSON siguiendo los 3 pasos:
 
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
+      response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      response_format: { type: 'json_object' },
       temperature: 0.3, // Baja temperatura para análisis consistente
       max_tokens: 500,
     });
