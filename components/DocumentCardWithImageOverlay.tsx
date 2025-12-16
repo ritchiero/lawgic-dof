@@ -137,42 +137,58 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
           </div>
         )}
 
-        {/* Las imágenes de IA ya tienen texto integrado, no necesitan overlay CSS */}
+        {/* Overlay glassmorphism con texto (para TODAS las imágenes) */}
+        {categoryImage && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-8">
+            {/* Glassmorphism card */}
+            <div className="relative backdrop-blur-md bg-white/10 border border-white/20 rounded-3xl p-8 max-w-2xl shadow-2xl">
+              {/* Icono/Emoji */}
+              <div className="text-center mb-4">
+                <div className="inline-block p-4 rounded-full bg-white/20 backdrop-blur-sm">
+                  <div className="text-4xl">
+                    {primaryArea?.emoji || '📄'}
+                  </div>
+                </div>
+              </div>
 
-        {/* Overlay semi-transparente para mejorar contraste (solo para imágenes estáticas) */}
-        {!hasAIImage && (
-          <>
-            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20"></div>
-            
-            {/* Text Overlay (solo para imágenes estáticas) */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-          {/* Emoji más pequeño */}
-          <div className="text-5xl mb-2 drop-shadow-lg filter brightness-110">
-            {primaryArea?.emoji || '📄'}
-          </div>
+              {/* Headline principal */}
+              <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-3 drop-shadow-lg leading-tight">
+                {documento.social_headline || keywords}
+              </h2>
 
-          {/* Palabras clave con mejor contraste */}
-          <h3 className="text-xl font-bold text-gray-900 mb-2 drop-shadow-[0_2px_4px_rgba(255,255,255,0.8)] leading-tight max-w-[85%]">
-            {keywords}
-          </h3>
+              {/* Tagline/descripción */}
+              {documento.social_tagline && (
+                <p className="text-base md:text-lg text-white/90 text-center mb-4 drop-shadow-md">
+                  {documento.social_tagline}
+                </p>
+              )}
 
-          {/* Categoría */}
-          <p className="text-base text-gray-800 mb-2 drop-shadow-[0_1px_2px_rgba(255,255,255,0.6)] font-semibold">
-            {primaryArea?.nombre || 'General'}
-          </p>
+              {/* Metadata */}
+              <div className="flex items-center justify-center gap-3 text-sm text-white/80">
+                <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm">
+                  {primaryArea?.nombre || 'General'}
+                </span>
+                <span>•</span>
+                <span>
+                  {new Date(documento.fecha_publicacion).toLocaleDateString('es-MX', { 
+                    day: '2-digit', 
+                    month: 'short' 
+                  }).toUpperCase()}
+                </span>
+                <span>•</span>
+                <span>{documento.tipo_documento || 'Otro'}</span>
+              </div>
 
-          {/* Separador decorativo */}
-          <div className="w-20 h-0.5 bg-gray-400 mb-2 shadow-sm"></div>
-
-          {/* Metadata */}
-          <p className="text-sm text-gray-700 drop-shadow-[0_1px_2px_rgba(255,255,255,0.6)] font-medium">
-            {new Date(documento.fecha_publicacion).toLocaleDateString('es-MX', { 
-              day: '2-digit', 
-              month: 'short' 
-            }).toUpperCase()} • {documento.tipo_documento || 'Documento'}
-          </p>
+              {/* Impact data si existe */}
+              {documento.social_impact_data && (
+                <div className="mt-4 pt-4 border-t border-white/20 text-center">
+                  <p className="text-sm font-semibold text-white/90">
+                    {documento.social_impact_data}
+                  </p>
+                </div>
+              )}
             </div>
-          </>
+          </div>
         )}
 
         {/* Badges de nuevo/importante */}
