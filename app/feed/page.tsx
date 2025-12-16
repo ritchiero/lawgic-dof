@@ -128,6 +128,10 @@ export default function FeedPage() {
 
   // Cargar inicial
   useEffect(() => {
+    console.log('[Feed] Initial useEffect triggered');
+    setDocumentos([]);
+    setPage(1);
+    setHasMore(true);
     fetchDocumentos(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAreas, searchQuery, showSavedOnly]);
