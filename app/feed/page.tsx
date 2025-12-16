@@ -17,6 +17,10 @@ interface Documento {
   tipo_documento: string;
   edicion: string;
   url_dof: string;
+  image_url?: string;
+  social_headline?: string;
+  social_tagline?: string;
+  social_impact_data?: string;
 }
 
 // Agrupar áreas por categoría para mejor UX
