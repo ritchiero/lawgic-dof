@@ -61,7 +61,10 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
   const categoryColors = CATEGORY_COLORS[primaryArea?.codigo] || CATEGORY_COLORS.default;
   
   // Solo usar imagen generada con IA (sin fallback)
-  const categoryImage = documento.image_url;
+  // Agregar timestamp para evitar caché
+  const categoryImage = documento.image_url 
+    ? `${documento.image_url}?t=${documento.imagen_regenerada || Date.now()}`
+    : undefined;
   const hasAIImage = !!documento.image_url;
 
   // Calcular tiempo de lectura
