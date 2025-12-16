@@ -1,25 +1,15 @@
 /**
  * Servicio de generación de imágenes con DALL-E 3
- * Costo: $0.04 por imagen (1024x1024)
- * Latencia: ~10-15 segundos
+ * Ahora usa análisis semántico inteligente para generar fotos temáticas/simbólicas
+ * Costo: ~$0.08 por imagen (análisis GPT-4o-mini + DALL-E 3)
+ * Latencia: ~25-35 segundos
  */
 
-import OpenAI from 'openai';
-import { generateSocialCopy, generateImagePrompt, type SocialCopy } from './social-copywriter';
-
-let openaiClient: OpenAI | null = null;
-
-function getOpenAI(): OpenAI {
-  if (!openaiClient) {
-    openaiClient = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
-  }
-  return openaiClient;
-}
+import { generateBackgroundPhoto, BackgroundPhotoResult } from './background-photo-generator';
+import { generateSocialCopy, type SocialCopy } from './social-copywriter';
 
 /**
- * Genera una imagen con DALL-E 3 usando copy social atractivo
+ * Genera una imagen con DALL-E 3 usando análisis semántico inteligente
  */
 export async function generateImageWithDALLE3(params: {
   categoria: string;
@@ -33,57 +23,36 @@ export async function generateImageWithDALLE3(params: {
     
     console.log(`[DALL-E 3] Generando imagen para documento: ${documentoId}`);
     console.log(`[DALL-E 3] Categoría: ${categoria}, Tipo: ${tipo}`);
+    console.log(`[DALL-E 3] Título: ${titulo.substring(0, 80)}...`);
     
-    // PASO 1 & 2: Generar copy social atractivo
+    // PASO 1: Generar copy social (para metadata)
     let socialCopy: SocialCopy | undefined;
-    let prompt: string;
-    
     if (resumen) {
       console.log(`[DALL-E 3] Generando copy social...`);
       socialCopy = await generateSocialCopy(titulo, resumen, categoria, tipo);
       console.log(`[DALL-E 3] Headline: ${socialCopy.headline}`);
-      console.log(`[DALL-E 3] Tagline: ${socialCopy.tagline}`);
-      
-      // PASO 3: Generar prompt de imagen con el copy
-      prompt = generateImagePrompt(socialCopy, categoria);
-    } else {
-      // Fallback: usar prompt básico
-      prompt = `Modern social media background for Mexican government document about ${categoria}. 
-Dark gradient background, glassmorphism style, professional and eye-catching. 
-NO TEXT - background only for text overlay.`;
     }
     
-    console.log(`[DALL-E 3] Prompt: ${prompt.substring(0, 150)}...`);
-    
-    // Generar imagen con DALL-E 3
-    const response = await getOpenAI().images.generate({
-      model: 'dall-e-3',
-      prompt: prompt,
-      n: 1,
-      size: '1024x1024',
-      quality: 'standard', // 'standard' o 'hd' (hd cuesta $0.08)
-      style: 'vivid', // 'vivid' o 'natural'
+    // PASO 2: Generar imagen con análisis inteligente
+    console.log(`[DALL-E 3] Usando análisis semántico inteligente...`);
+    const result: BackgroundPhotoResult = await generateBackgroundPhoto({
+      titulo,
+      resumen,
+      categoria,
     });
     
-    const imageUrl = response.data?.[0]?.url;
-    
-    if (!imageUrl) {
-      throw new Error('No se recibió URL de imagen de DALL-E 3');
+    if (!result.success || !result.photoBase64) {
+      throw new Error(result.error || 'No se pudo generar la imagen');
     }
     
-    console.log(`[DALL-E 3] Imagen generada: ${imageUrl}`);
+    console.log(`[DALL-E 3] ✓ Imagen generada con análisis inteligente`);
+    console.log(`[DALL-E 3]   Tema: ${result.metadata?.mainTopic}`);
+    console.log(`[DALL-E 3]   Entidades: ${result.metadata?.entities?.join(', ')}`);
     
-    // Descargar la imagen
-    const imageResponse = await fetch(imageUrl);
+    // Convertir base64 a Buffer
+    const buffer = Buffer.from(result.photoBase64, 'base64');
     
-    if (!imageResponse.ok) {
-      throw new Error(`Error descargando imagen: ${imageResponse.statusText}`);
-    }
-    
-    const arrayBuffer = await imageResponse.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    
-    console.log(`[DALL-E 3] ✓ Imagen descargada (${buffer.length} bytes)`);
+    console.log(`[DALL-E 3] ✓ Imagen lista (${buffer.length} bytes)`);
     
     return {
       buffer,
@@ -110,7 +79,7 @@ export async function generateImageWithFallback(params: {
   resumen?: string;
 }): Promise<{ buffer: Buffer | null; copy?: SocialCopy; usedFallback: boolean }> {
   try {
-    // Intentar generar con DALL-E 3
+    // Intentar generar con DALL-E 3 + análisis inteligente
     const result = await generateImageWithDALLE3(params);
     
     if (result.buffer) {
