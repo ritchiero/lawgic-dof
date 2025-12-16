@@ -21,6 +21,9 @@ export interface IntelligentAnalysisResult {
   entities: string[];
   photoDescription: string;
   reasoning: string;
+  step1?: string;
+  step2?: string;
+  step3?: string;
 }
 
 /**
