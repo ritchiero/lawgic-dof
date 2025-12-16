@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     // Actualizar documento en Firestore
     await docRef.update({
-      imagen_social: uploadResult.publicUrl,
+      image_url: uploadResult.publicUrl,
       imagen_regenerada: new Date().toISOString(),
     });
 
