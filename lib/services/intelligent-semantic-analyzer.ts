@@ -138,9 +138,8 @@ ${resumen ? `\nRESUMEN: ${resumen}` : ''}`;
  */
 export async function generateIntelligentPhotoPrompt(
   titulo: string,
-  categoria: string,
   resumen?: string
-): Promise<string> {
+): Promise<{ prompt: string; analysis: IntelligentAnalysisResult }> {
   const analysis = await analyzeWithAI(titulo, resumen);
   
   const basePrompt = analysis.photoDescription;
@@ -160,5 +159,7 @@ IMPORTANT REQUIREMENTS:
 - Institutional, formal aesthetic
 - Mexican context and setting`;
 
-  return basePrompt + technicalRequirements;
+  const prompt = basePrompt + technicalRequirements;
+
+  return { prompt, analysis };
 }
