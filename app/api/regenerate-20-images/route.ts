@@ -10,14 +10,20 @@ import { generateAndUploadDocumentImage } from '@/lib/services/image-storage';
 
 export const maxDuration = 300; // 5 minutos
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    console.log('🔄 Iniciando regeneración de 20 imágenes...');
+    // Obtener parámetros de query
+    const { searchParams } = new URL(request.url);
+    const limit = parseInt(searchParams.get('limit') || '5');
+    const offset = parseInt(searchParams.get('offset') || '0');
+    
+    console.log(`🔄 Iniciando regeneración de ${limit} imágenes (offset: ${offset})...`);
 
-    // Obtener 20 documentos recientes
+    // Obtener documentos recientes
     const docsSnapshot = await db.collection('documentos_dof')
       .orderBy('fecha_publicacion', 'desc')
-      .limit(20)
+      .offset(offset)
+      .limit(limit)
       .get();
 
     if (docsSnapshot.empty) {
@@ -42,7 +48,7 @@ export async function POST() {
       const tipo = data.tipo_documento || 'Acuerdo';
 
       try {
-        console.log(`\n📝 [${successCount + errorCount + 1}/20] ${titulo.substring(0, 60)}...`);
+        console.log(`\n📝 [${successCount + errorCount + 1}/${docsSnapshot.size}] ${titulo.substring(0, 60)}...`);
         
         // Generar imagen con nuevo sistema
         const imageResult = await generateImageWithFallback({
