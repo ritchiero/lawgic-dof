@@ -59,11 +59,16 @@ PROCESO (3 pasos):
 
 2. ¿QUÉ SÍMBOLO VISUAL REPRESENTA ESE TEMA? (step2_whatPhotoToSearch)
    - Piensa en ICONOS VISUALES reconocibles
-   - Ejemplos:
+   - Ejemplos por categoría:
      * Cultura → "Palacio de Bellas Artes", "Piedra del Sol", "arte mexicano"
      * Justicia → "Edificio SCJN", "balanza de justicia"
      * Educación → "aula", "estudiantes", "libros"
-     * Salud → "hospital", "médicos"
+     * Salud → "hospital", "médicos", "estetoscopio"
+     * Economía/Presupuesto → "pesos mexicanos", "Banco de México", "Palacio Nacional"
+     * Defensa/Marina → "soldados mexicanos", "buque de guerra", "bandera mexicana"
+     * Energía → "torres eléctricas", "paneles solares", "plataforma petrolera"
+     * Medio Ambiente → "áreas naturales", "bosque", "océano"
+     * Telecomunicaciones → "antena", "fibra óptica", "satélite"
    - Keywords SIMPLES, no frases largas
 
 3. DESCRIPCIÓN DE LA FOTO (step3_photoDescription)
@@ -101,10 +106,12 @@ REGLAS CRÍTICAS:
 - PIENSA EN EL TEMA/SECTOR, NO en la acción burocrática
 - USA SÍMBOLOS VISUALES ICÓNICOS que la gente reconozca
 - Stock photo style: SIMPLE, REALISTA, UN SOLO SÍMBOLO
-- Para Cultura: Palacio Bellas Artes, Piedra del Sol, arte mexicano
-- Para Justicia: SCJN, balanza, martillo
-- Para Educación: aula, estudiantes, libros
-- NO uses edificios genéricos de gobierno`;
+- PREFIERE símbolos mexicanos específicos sobre genéricos:
+  * Economía: "pesos mexicanos" NO "dinero"
+  * Cultura: "Palacio Bellas Artes" NO "edificio cultural"
+  * Justicia: "SCJN" o "balanza" NO "edificio de gobierno"
+- NO uses edificios genéricos de gobierno
+- Si el edificio NO es icónico, usa un símbolo del sector`;
 
     const userPrompt = `Analiza este documento del DOF y responde en JSON con los 5 campos obligatorios:
 
