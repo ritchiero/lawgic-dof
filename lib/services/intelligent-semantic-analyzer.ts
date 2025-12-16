@@ -63,9 +63,11 @@ PROCESO (3 pasos):
    - Ejemplo: "Imágenes de la SCJN en sesiones"
 
 3. DESCRIPCIÓN DE LA FOTO (step3_photoDescription)
-   - Descripción EXACTA en inglés para DALL-E
-   - Photojournalism documental, REALISTA
-   - Ejemplo: "Professional photojournalism image of Mexican Supreme Court justices in session, documentary style"
+   - Descripción SIMPLE y DIRECTA en inglés para DALL-E
+   - UNA SOLA ESCENA: edificio O personas (no ambos)
+   - Stock photo realista, NO composiciones elaboradas
+   - Ejemplo edificio: "Simple exterior photograph of Mexican Supreme Court building, daytime, stock photo style"
+   - Ejemplo personas: "Stock photo of government officials in meeting room, 3-4 people, natural lighting"
 
 EJEMPLO COMPLETO:
 Título: "Acuerdo General número 19/2025 del Pleno de la Suprema Corte..."
@@ -74,7 +76,7 @@ RESPUESTA JSON:
 {
   "step1_whatIsItAbout": "La SCJN tuvo un acuerdo",
   "step2_whatPhotoToSearch": "Imágenes de la SCJN en sesiones",
-  "step3_photoDescription": "Professional photojournalism image of Mexican Supreme Court justices in session, ministers discussing at the courtroom, SCJN building interior, documentary style",
+  "step3_photoDescription": "Stock photograph of Mexican Supreme Court building exterior, simple composition, daytime, professional photography",
   "mainTopic": "Acuerdo SCJN",
   "entities": ["SCJN", "Suprema Corte"]
 }
@@ -83,8 +85,9 @@ REGLAS:
 - DEBES incluir los 5 campos: step1_whatIsItAbout, step2_whatPhotoToSearch, step3_photoDescription, mainTopic, entities
 - SÉ DIRECTO Y LITERAL (no creativo)
 - IDENTIFICA LA INSTITUCIÓN ESPECÍFICA (SCJN, INE, Cultura, etc.)
-- BUSCA LA ESCENA MÁS OBVIA (sesión, edificio, proceso)
-- Photojournalism documental, REALISTA, SOBRIO`;
+- BUSCA LA ESCENA MÁS SIMPLE Y OBVIA (edificio exterior O grupo pequeño)
+- Stock photo style: SIMPLE, REALISTA, UNA SOLA ESCENA
+- Evita composiciones complejas o múltiples elementos`;
 
     const userPrompt = `Analiza este documento del DOF y responde en JSON con los 5 campos obligatorios:
 
@@ -144,20 +147,31 @@ export async function generateIntelligentPhotoPrompt(
   
   const basePrompt = analysis.photoDescription;
   
-  // Agregar requisitos técnicos
+  // Agregar requisitos técnicos para fotos hiper-realistas
   const technicalRequirements = `
 
-IMPORTANT REQUIREMENTS:
+CRITICAL STYLE REQUIREMENTS:
+- HYPER-REALISTIC stock photograph (like Getty Images or Reuters archive)
+- Must look like actual press photo, NOT 3D render or illustration
+- SIMPLE composition: ONE main subject only (building OR people, not both)
+- Authentic, candid moment - NOT staged or artificial
+- Real-world imperfections acceptable (slight blur, natural shadows)
+- Documentary photography aesthetic
+
+TECHNICAL REQUIREMENTS:
 - Professional photograph, high quality
-- Realistic, photographic style (not illustration or graphic design)
 - NO text, NO numbers, NO labels, NO overlays
-- NO logos, NO watermarks, NO graphics
-- Clean, uncluttered composition
-- Suitable as background image for text overlay
-- Natural lighting, professional photography
+- NO logos, NO watermarks, NO graphics  
+- Clean, uncluttered background
+- Natural lighting (avoid dramatic or cinematic lighting)
 - Landscape orientation (1792x1024px)
-- Institutional, formal aesthetic
-- Mexican context and setting`;
+- Suitable as background image for text overlay
+
+CONTENT GUIDELINES:
+- Mexican government/institutional context
+- Prefer: simple building exteriors, small groups (2-4 people), office interiors
+- Avoid: elaborate compositions, multiple focal points, overly perfect symmetry
+- Think: "stock photo" not "movie poster"`;
 
   const prompt = basePrompt + technicalRequirements;
 
