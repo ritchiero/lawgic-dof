@@ -1,6 +1,7 @@
 /**
- * Generador de fotos de fondo con DALL-E 3
+ * Generador de fotos de fondo con Gemini 2.5 Flash Image Preview
  * Solo genera la foto, sin texto. El frontend compone el overlay.
+ * Genera imágenes más realistas que DALL-E 3
  */
 
 import { generateIntelligentPhotoPrompt } from './intelligent-semantic-analyzer';
@@ -44,7 +45,7 @@ export async function generateBackgroundPhoto(
   options: BackgroundPhotoOptions
 ): Promise<BackgroundPhotoResult> {
   try {
-    console.log('📸 Generando foto de fondo con DALL-E 3...');
+    console.log('📸 Generando foto de fondo con Gemini 2.5 Flash Image Preview...');
     console.log(`   Título: ${options.titulo.substring(0, 60)}...`);
     console.log(`   Categoría: ${options.categoria || 'general'}`);
 
@@ -57,20 +58,18 @@ export async function generateBackgroundPhoto(
     console.log(`   🧠 Tema principal: ${analysis.mainTopic}`);
     console.log(`   📝 Prompt: ${prompt.substring(0, 100)}...`);
 
-    // Generar foto con DALL-E 3
+    // Generar foto con Gemini 2.5 Flash Image Preview
     const openai = getOpenAIClient();
-    const dalleResponse = await openai.images.generate({
-      model: 'dall-e-3',
+    const geminiResponse = await openai.images.generate({
+      model: 'gemini-2.5-flash-image-preview',
       prompt: prompt,
       n: 1,
       size: '1792x1024', // Landscape para redes sociales
-      quality: 'standard',
-      response_format: 'url',
     });
 
-    const photoUrl = dalleResponse.data[0]?.url;
+    const photoUrl = geminiResponse.data[0]?.url;
     if (!photoUrl) {
-      throw new Error('DALL-E no retornó URL de imagen');
+      throw new Error('Gemini no retornó URL de imagen');
     }
 
     console.log('   ✅ Foto de fondo generada');
