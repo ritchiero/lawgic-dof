@@ -66,6 +66,7 @@ export default function FeedPage() {
   const fetchDocumentos = useCallback(async (reset = false) => {
     if (loading || (!hasMore && !reset)) return;
     
+    console.log('[Feed] fetchDocumentos called, reset:', reset);
     setLoading(true);
     
     try {
@@ -77,18 +78,24 @@ export default function FeedPage() {
         ...(showSavedOnly && { saved: 'true' }),
       });
 
+      console.log('[Feed] Fetching:', `/api/feed?${params}`);
       const res = await fetch(`/api/feed?${params}`);
       const data = await res.json();
+      console.log('[Feed] Response:', data);
+      console.log('[Feed] Documentos count:', data.documentos?.length);
       
       if (reset) {
-        setDocumentos(data.documentos);
+        console.log('[Feed] Setting documentos (reset):', data.documentos?.length);
+        setDocumentos(data.documentos || []);
         setPage(2);
       } else {
-        setDocumentos(prev => [...prev, ...data.documentos]);
+        console.log('[Feed] Appending documentos:', data.documentos?.length);
+        setDocumentos(prev => [...prev, ...(data.documentos || [])]);
         setPage(prev => prev + 1);
       }
       
       setHasMore(data.hasMore);
+      console.log('[Feed] hasMore:', data.hasMore);
     } catch (error) {
       console.error('Error cargando documentos:', error);
     } finally {
