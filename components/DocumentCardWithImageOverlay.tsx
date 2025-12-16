@@ -12,19 +12,10 @@ interface DocumentCardProps {
   isSaved?: boolean;
 }
 
-// Mapa de imágenes de fondo por categoría
+// Mapa de imágenes de fondo por categoría (DESHABILITADO - solo usar imágenes generadas con IA)
 const CATEGORY_IMAGES: Record<string, string> = {
-  fiscal: '/images/categories/fiscal.png',
-  corporativo: '/images/categories/corporativo.png',
-  laboral: '/images/categories/laboral.png',
-  penal: '/images/categories/penal.png',
-  civil: '/images/categories/civil.png',
-  mercantil: '/images/categories/corporativo.png',
-  administrativo: '/images/categories/administrativo.png',
-  constitucional: '/images/categories/constitucional.png',
-  bancario: '/images/categories/fiscal.png',
-  ambiental: '/images/categories/ambiental.png',
-  default: '/images/categories/administrativo.png',
+  // Todas las imágenes de fallback han sido removidas
+  // Solo se mostrarán imágenes generadas con el sistema inteligente
 };
 
 // Mapa de colores por categoría
@@ -69,8 +60,8 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
   const primaryArea = areasInfo[0];
   const categoryColors = CATEGORY_COLORS[primaryArea?.codigo] || CATEGORY_COLORS.default;
   
-  // Obtener imagen de fondo de la categoría o imagen generada con IA
-  const categoryImage = documento.image_url || CATEGORY_IMAGES[primaryArea?.codigo] || CATEGORY_IMAGES.default;
+  // Solo usar imagen generada con IA (sin fallback)
+  const categoryImage = documento.image_url;
   const hasAIImage = !!documento.image_url;
 
   // Calcular tiempo de lectura
@@ -121,7 +112,7 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
       {/* Imagen de fondo con overlay de texto */}
       <div className="relative w-full aspect-[4/3] overflow-hidden">
         {/* Imagen de fondo */}
-        {!imageError && (
+        {categoryImage && !imageError && (
           <Image
             src={categoryImage}
             alt={documento.social_headline || primaryArea?.nombre || 'Documento'}
@@ -133,9 +124,14 @@ export function DocumentCard({ documento, onSave, onShare, isSaved = false }: Do
           />
         )}
 
-        {/* Fallback si la imagen falla */}
-        {imageError && (
-          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200"></div>
+        {/* Placeholder cuando no hay imagen */}
+        {(!categoryImage || imageError) && (
+          <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+            <div className="text-gray-400 text-center">
+              <div className="text-4xl mb-2">📝</div>
+              <div className="text-sm">Generando imagen...</div>
+            </div>
+          </div>
         )}
 
         {/* Las imágenes de IA ya tienen texto integrado, no necesitan overlay CSS */}
