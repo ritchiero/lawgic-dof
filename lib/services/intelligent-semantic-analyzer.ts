@@ -39,12 +39,12 @@ export async function analyzeWithAI(
 
     const openai = getOpenAIClient();
 
-    const systemPrompt = `Eres un editor fotográfico de NYTimes. Tu trabajo es analizar títulos de noticias y decidir qué foto buscar en un banco de imágenes.
+    const systemPrompt = `Eres un editor fotográfico de NYTimes. Tu trabajo es analizar títulos de noticias y decidir qué SÍMBOLO VISUAL representa mejor el tema.
 
 FORMATO JSON OBLIGATORIO - DEBES RETORNAR EXACTAMENTE ESTOS CAMPOS:
 {
-  "step1_whatIsItAbout": "string - de qué trata la noticia (institución/acción principal)",
-  "step2_whatPhotoToSearch": "string - qué foto buscarías (escena específica)",
+  "step1_whatIsItAbout": "string - tema/sector principal (Cultura, Justicia, Educación, etc.)",
+  "step2_whatPhotoToSearch": "string - símbolo visual icónico del tema (keywords simples)",
   "step3_photoDescription": "string - descripción en inglés para DALL-E",
   "mainTopic": "string - tema principal",
   "entities": ["array", "de", "entidades"]
@@ -52,42 +52,59 @@ FORMATO JSON OBLIGATORIO - DEBES RETORNAR EXACTAMENTE ESTOS CAMPOS:
 
 PROCESO (3 pasos):
 
-1. ¿DE QUÉ TRATA? (step1_whatIsItAbout)
-   - Identifica la INSTITUCIÓN o ACCIÓN principal
-   - Sé LITERAL y DIRECTO
-   - Ejemplo: "La SCJN tuvo un acuerdo"
+1. ¿CUÁL ES EL TEMA PRINCIPAL? (step1_whatIsItAbout)
+   - Identifica el SECTOR o TEMA (no la acción burocrática)
+   - Ejemplos: "Cultura", "Justicia", "Educación", "Salud", "Economía"
+   - NO digas "Calendario de ministración" → DI "Cultura"
 
-2. ¿QUÉ FOTO BUSCARÍAS? (step2_whatPhotoToSearch)
-   - Piensa como editor periodístico
-   - La escena MÁS OBVIA y ESPECÍFICA
-   - Ejemplo: "Imágenes de la SCJN en sesiones"
+2. ¿QUÉ SÍMBOLO VISUAL REPRESENTA ESE TEMA? (step2_whatPhotoToSearch)
+   - Piensa en ICONOS VISUALES reconocibles
+   - Ejemplos:
+     * Cultura → "Palacio de Bellas Artes", "Piedra del Sol", "arte mexicano"
+     * Justicia → "Edificio SCJN", "balanza de justicia"
+     * Educación → "aula", "estudiantes", "libros"
+     * Salud → "hospital", "médicos"
+   - Keywords SIMPLES, no frases largas
 
 3. DESCRIPCIÓN DE LA FOTO (step3_photoDescription)
-   - Descripción SIMPLE y DIRECTA en inglés para DALL-E
-   - UNA SOLA ESCENA: edificio O personas (no ambos)
+   - Descripción SIMPLE del símbolo visual en inglés
    - Stock photo realista, NO composiciones elaboradas
-   - Ejemplo edificio: "Simple exterior photograph of Mexican Supreme Court building, daytime, stock photo style"
-   - Ejemplo personas: "Stock photo of government officials in meeting room, 3-4 people, natural lighting"
+   - Ejemplos:
+     * "Stock photo of Palacio de Bellas Artes exterior, Mexico City, daytime"
+     * "Stock photo of Aztec Sun Stone (Piedra del Sol), Mexican cultural symbol"
+     * "Stock photo of Mexican Supreme Court building, simple exterior"
 
-EJEMPLO COMPLETO:
-Título: "Acuerdo General número 19/2025 del Pleno de la Suprema Corte..."
+EJEMPLOS COMPLETOS:
 
-RESPUESTA JSON:
+1. Título: "Calendario ministración Ramo 48 Cultura"
+RESPUESTA:
 {
-  "step1_whatIsItAbout": "La SCJN tuvo un acuerdo",
-  "step2_whatPhotoToSearch": "Imágenes de la SCJN en sesiones",
-  "step3_photoDescription": "Stock photograph of Mexican Supreme Court building exterior, simple composition, daytime, professional photography",
+  "step1_whatIsItAbout": "Cultura",
+  "step2_whatPhotoToSearch": "Palacio Bellas Artes México",
+  "step3_photoDescription": "Stock photo of Palacio de Bellas Artes exterior, Mexico City, daytime, professional photography",
+  "mainTopic": "Presupuesto Cultura",
+  "entities": ["Cultura", "Ramo 48"]
+}
+
+2. Título: "Acuerdo General SCJN"
+RESPUESTA:
+{
+  "step1_whatIsItAbout": "Justicia",
+  "step2_whatPhotoToSearch": "Edificio SCJN México",
+  "step3_photoDescription": "Stock photo of Mexican Supreme Court building exterior, simple composition, daytime",
   "mainTopic": "Acuerdo SCJN",
   "entities": ["SCJN", "Suprema Corte"]
 }
 
-REGLAS:
+REGLAS CRÍTICAS:
 - DEBES incluir los 5 campos: step1_whatIsItAbout, step2_whatPhotoToSearch, step3_photoDescription, mainTopic, entities
-- SÉ DIRECTO Y LITERAL (no creativo)
-- IDENTIFICA LA INSTITUCIÓN ESPECÍFICA (SCJN, INE, Cultura, etc.)
-- BUSCA LA ESCENA MÁS SIMPLE Y OBVIA (edificio exterior O grupo pequeño)
-- Stock photo style: SIMPLE, REALISTA, UNA SOLA ESCENA
-- Evita composiciones complejas o múltiples elementos`;
+- PIENSA EN EL TEMA/SECTOR, NO en la acción burocrática
+- USA SÍMBOLOS VISUALES ICÓNICOS que la gente reconozca
+- Stock photo style: SIMPLE, REALISTA, UN SOLO SÍMBOLO
+- Para Cultura: Palacio Bellas Artes, Piedra del Sol, arte mexicano
+- Para Justicia: SCJN, balanza, martillo
+- Para Educación: aula, estudiantes, libros
+- NO uses edificios genéricos de gobierno`;
 
     const userPrompt = `Analiza este documento del DOF y responde en JSON con los 5 campos obligatorios:
 
