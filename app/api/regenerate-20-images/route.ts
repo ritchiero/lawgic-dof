@@ -6,7 +6,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/firebase';
 import { generateImageWithFallback } from '@/lib/services/dalle-image-generator';
-import { generateAndUploadDocumentImage } from '@/lib/services/image-storage';
+import { uploadDocumentImage } from '@/lib/services/image-storage';
 
 export const maxDuration = 300; // 5 minutos
 
@@ -62,15 +62,17 @@ export async function POST(request: Request) {
         if (imageResult.buffer) {
           // Subir imagen a storage
           console.log(`   📤 Subiendo imagen...`);
-          const uploadResult = await generateAndUploadDocumentImage(
-            imageResult.buffer,
-            docId
-          );
+          const imageBase64 = imageResult.buffer.toString('base64');
+          const uploadResult = await uploadDocumentImage({
+            imageBase64,
+            documentId: docId,
+            format: 'png',
+          });
 
-          if (uploadResult.success && uploadResult.imageUrl) {
+          if (uploadResult.success && uploadResult.publicUrl) {
             // Actualizar documento en Firestore
             await doc.ref.update({
-              imagen_social: uploadResult.imageUrl,
+              imagen_social: uploadResult.publicUrl,
               imagen_regenerada: new Date().toISOString(),
             });
 
@@ -80,7 +82,7 @@ export async function POST(request: Request) {
               id: docId,
               titulo: titulo.substring(0, 80),
               success: true,
-              imageUrl: uploadResult.imageUrl,
+              imageUrl: uploadResult.publicUrl,
             });
             
             successCount++;
