@@ -36,66 +36,66 @@ export async function analyzeWithAI(
 
     const openai = getOpenAIClient();
 
-    const systemPrompt = `Eres un editor fotográfico de NYTimes o Reuters que selecciona fotos REALISTAS y SOBRIAS para acompañar noticias serias.
+    const systemPrompt = `Eres un editor fotográfico de NYTimes que busca fotos en un banco de imágenes para acompañar noticias.
 
-Tu tarea es:
-1. Leer y entender el título del documento del DOF
-2. Identificar el TEMA PRINCIPAL (no temas administrativos secundarios)
-3. Generar una descripción de FOTO DOCUMENTAL realista y creible
+PROCESO OBLIGATORIO (3 pasos):
 
-CRITERIOS ESTRICTOS:
-❌ EVITAR:
-- Festivales coloridos exagerados
-- Multitudes masivas
-- Escenas "de postal" o turísticas
-- Imágenes "vibrantes" o "coloridas" en exceso
-- Estereotipos culturales exagerados
-- Cualquier cosa que parezca "stock photo genérico"
+1. ¿DE QUÉ TRATA?
+   - Identifica la INSTITUCIÓN, ACCIÓN o EVENTO principal
+   - Ignora detalles administrativos secundarios
+   - Sé LITERAL y DIRECTO
 
-✅ BUSCAR:
-- Fotos REALISTAS, sobrias, documentales
-- Escenas cotidianas normales
-- 2-4 personas máximo (no multitudes)
-- Iluminación natural, ambiente real
-- Edificios icónicos reconocibles (cuando aplique)
-- Estilo: Photojournalism serio de NYTimes/Reuters/AP
-- Credibilidad periodística
+2. ¿QUÉ FOTO BUSCARÍAS?
+   - Piensa como editor periodístico real
+   - ¿Qué imagen ilustra DIRECTAMENTE el tema?
+   - Busca la escena MÁS OBVIA y ESPECÍFICA
 
-Ejemplos de BUEN estilo (realista y sobrio):
+3. DESCRIPCIÓN DE LA FOTO
+   - Describe la foto EXACTA que buscarías
+   - Sé ESPECÍFICO: institución, lugar, acción
+   - Estilo: Photojournalism documental
 
-Título: "Calendario de Presupuesto autorizado al Ramo 48 Cultura"
-Tema: Cultura y patrimonio
-Foto: "Professional documentary photograph of Palacio de Bellas Artes in Mexico City, iconic cultural landmark, daytime exterior view, architectural photography, realistic lighting, photojournalism style"
+EJEMPLOS DEL PROCESO:
+
+Título: "Acuerdo General número 19/2025 del Pleno de la Suprema Corte de Justicia de la Nación, por el que se dispone el aplazamiento del dictado de la resolución..."
+1. ¿De qué trata? → La SCJN tuvo un acuerdo
+2. ¿Qué buscarías? → Imágenes de la SCJN en sesiones
+3. Descripción: "Professional photojournalism image of Mexican Supreme Court justices in session, ministers discussing at the courtroom, SCJN building interior, documentary style"
+
+Título: "Calendario de Presupuesto autorizado al Ramo 48 Cultura para el ejercicio fiscal 2026"
+1. ¿De qué trata? → Presupuesto para Cultura (Secretaría de Cultura)
+2. ¿Qué buscarías? → Edificio icónico cultural mexicano
+3. Descripción: "Professional photojournalism image of Palacio de Bellas Artes in Mexico City, iconic cultural building exterior, daytime, architectural documentary photography"
 
 Título: "Acuerdo del INE sobre proceso electoral"
-Tema: Elecciones
-Foto: "Professional documentary photograph of Mexican ballot box at polling station, single voter casting vote, electoral process, realistic indoor lighting, photojournalism style"
+1. ¿De qué trata? → INE y elecciones
+2. ¿Qué buscarías? → Proceso electoral, votación
+3. Descripción: "Professional photojournalism image of Mexican voting booth with ballot box, citizen casting vote, electoral process, documentary style"
 
 Título: "Resolución sobre instituciones de crédito"
-Tema: Sistema bancario
-Foto: "Professional documentary photograph of modern bank branch in Mexico City, professional banker at desk, corporate interior, business photography, realistic lighting"
+1. ¿De qué trata? → Bancos y sistema financiero
+2. ¿Qué buscarías? → Banco mexicano
+3. Descripción: "Professional photojournalism image of modern Mexican bank building exterior, financial institution, business district, documentary photography"
 
-Título: "Decreto sobre educación pública"
-Tema: Educación
-Foto: "Professional documentary photograph of Mexican public school classroom, teacher explaining at whiteboard, 3-4 students listening, educational setting, natural lighting, photojournalism style"
-
-Título: "Norma sobre seguridad laboral"
-Tema: Seguridad en el trabajo
-Foto: "Professional documentary photograph of Mexican construction worker wearing safety helmet and vest, industrial workplace, occupational safety, realistic daytime lighting, documentary style"
-
-RECUERDA: Fotos REALISTAS, SOBRIAS, CREIBLES - como las que usaría NYTimes para una noticia seria.`
+REGLAS:
+- SÉ DIRECTO Y LITERAL (no creativo)
+- IDENTIFICA LA INSTITUCIÓN ESPECÍFICA (SCJN, INE, Cultura, etc.)
+- BUSCA LA ESCENA MÁS OBVIA (sesión, edificio, proceso)
+- NO inventes escenas genéricas ("community center", "workshop")
+- Photojournalism documental, REALISTA, SOBRIO`
 
     const userPrompt = `Analiza este documento del DOF:
 
 TÍTULO: ${titulo}
 ${resumen ? `\nRESUMEN: ${resumen}` : ''}
 
-Responde en formato JSON:
+Responde en formato JSON siguiendo los 3 pasos:
 {
-  "mainTopic": "tema principal en español",
-  "entities": ["entidad1", "entidad2"],
-  "photoDescription": "descripción fotográfica en inglés para DALL-E",
-  "reasoning": "breve explicación de por qué elegiste este tema"
+  "step1_whatIsItAbout": "de qué trata (institución/acción principal)",
+  "step2_whatPhotoToSearch": "qué foto buscarías (escena específica)",
+  "step3_photoDescription": "descripción exacta de la foto en inglés para DALL-E",
+  "mainTopic": "tema principal",
+  "entities": ["entidad1", "entidad2"]
 }`;
 
     const response = await openai.chat.completions.create({
@@ -117,8 +117,11 @@ Responde en formato JSON:
     return {
       mainTopic: result.mainTopic || 'Documento gubernamental',
       entities: result.entities || [],
-      photoDescription: result.photoDescription || 'Professional photograph of Mexican government building',
-      reasoning: result.reasoning || 'Análisis automático',
+      photoDescription: result.step3_photoDescription || result.photoDescription || 'Professional photograph of Mexican government building',
+      reasoning: result.step2_whatPhotoToSearch || result.reasoning || 'Análisis automático',
+      step1: result.step1_whatIsItAbout,
+      step2: result.step2_whatPhotoToSearch,
+      step3: result.step3_photoDescription,
     };
 
   } catch (error) {
