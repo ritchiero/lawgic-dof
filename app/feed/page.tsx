@@ -122,6 +122,7 @@ export default function FeedPage() {
   // Cargar inicial
   useEffect(() => {
     fetchDocumentos(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAreas, searchQuery, showSavedOnly]);
 
   // Cargar guardados del localStorage
